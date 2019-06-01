@@ -1,10 +1,5 @@
 package main
 
-import (
-	"math/rand"
-	"time"
-)
-
 type coordinate struct {
 	ink []byte
 	x   int
@@ -27,11 +22,4 @@ func coordContain(list []coordinate, ele coordinate) bool {
 		}
 	}
 	return false
-}
-
-func randXY(maxX, maxY int) (x, y int) {
-	rand.Seed(time.Now().UnixNano())
-	x = rand.Intn(maxX)
-	y = rand.Intn(maxY)
-	return
 }
