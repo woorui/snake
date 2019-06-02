@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	charFood = []byte{27} // byte from string "o"
+	charFood = byte(111) // byte from string "o"
 )
 
 // food is a random point within stage

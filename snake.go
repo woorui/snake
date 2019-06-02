@@ -1,9 +1,12 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 var (
-	charSnakeBody = []byte{42} // byte from string "*"
+	charSnakeBody = byte(42) // byte from string "*"
 )
 
 // direction is the direction of snake
@@ -29,19 +32,19 @@ type snake struct {
 func newSnake() *snake {
 	c := coordinate{
 		ink: charSnakeBody,
-		x:   0,
-		y:   0,
+		x:   2,
+		y:   2,
 	}
 	return &snake{
 		head:   c,
 		body:   []coordinate{c},
-		speed:  time.Millisecond * 100,
+		speed:  time.Millisecond * 300,
 		direct: none,
 	}
 }
 
 // move function make snake move.
-// The snake first appeared in the upper-left corner.
+// The snake first appeared in the top-left corner.
 func (s *snake) move(stage *stage, food *food) {
 
 	if food.coordinate.x == s.head.x && food.coordinate.y == s.head.y {
@@ -98,6 +101,22 @@ func (s *snake) checkCollidingSelf() bool {
 	bodySize := len(body)
 
 	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
+}
+
+// adapter translate input byte to snake direction, This function needs to be called asynchronously
+func (s *snake) adapter(input chan byte) {
+	for i := range input {
+		fmt.Println("--->", s)
+		if i == 119 {
+			s.turning(up)
+		} else if i == 115 {
+			s.turning(down)
+		} else if i == 97 {
+			s.turning(left)
+		} else if i == 100 {
+			s.turning(right)
+		}
+	}
 }
 
 func (s *snake) getCoords() []coordinate {

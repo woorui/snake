@@ -40,11 +40,6 @@ func watchInterrupt(fn func()) {
 	}()
 }
 
-func exit() {
-	deCleanScreen()
-	os.Exit(0)
-}
-
 func keyPress(input chan byte) {
 	cleanScreen()
 	b := make([]byte, 1)

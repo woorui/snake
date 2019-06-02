@@ -1,7 +1,7 @@
 package main
 
 type coordinate struct {
-	ink []byte
+	ink byte
 	x   int
 	y   int
 }
