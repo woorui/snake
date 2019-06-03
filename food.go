@@ -16,21 +16,16 @@ type food struct {
 
 // newFood generate a random point within a scope
 // args restriction is that food can't locate in
-func newFood(maxX, maxY int, restriction []coordinate) *food {
-	x, y := randXY(maxX, maxY)
-	c := coordinate{x: x, y: y, ink: charFood}
-
-	if coordContain(restriction, c) {
-		return newFood(maxX, maxY, restriction)
-	}
-
+func newFood(minX, maxX, minY, maxY int, restriction []coordinate) *food {
+	c := newCoordinate(minX, maxX, minY, maxY, charFood, restriction)
 	return &food{coordinate: c}
 }
 
-func (f *food) newLocate(maxX, maxY int) {
-	x, y := randXY(maxX, maxY)
-	f.coordinate.x = x
-	f.coordinate.y = y
+func (f *food) newLocate(minX, maxX, minY, maxY int, restriction []coordinate) {
+	c := newCoordinate(minX, maxX, minY, maxY, charFood, restriction)
+
+	f.coordinate.x = c.x
+	f.coordinate.y = c.y
 }
 
 func (f *food) getCoords() []coordinate {
@@ -38,9 +33,15 @@ func (f *food) getCoords() []coordinate {
 	return append(coords, f.coordinate)
 }
 
-func randXY(maxX, maxY int) (x, y int) {
+func randXY(minX, maxX, minY, maxY int) (x, y int) {
 	rand.Seed(time.Now().UnixNano())
-	x = rand.Intn(maxX)
-	y = rand.Intn(maxY)
+	x = randRange(minX, maxX)
+	y = randRange(minY, maxY)
 	return
+}
+
+func randRange(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	randNum := rand.Intn(max-min) + min
+	return randNum
 }

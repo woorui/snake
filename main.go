@@ -11,9 +11,10 @@ func main() {
 	watchInterrupt(exit)
 
 	screen := bufio.NewWriter(os.Stdout)
-	stage := newStage(40, 20)
+	stage := newStage(10, 10)
 	snake := newSnake()
-	food := newFood(stage.width, stage.height, snake.getCoords())
+	// Can not locate in stage's border
+	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
 
 	input := make(chan byte)
 	go keyPress(input)

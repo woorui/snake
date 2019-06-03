@@ -6,6 +6,16 @@ type coordinate struct {
 	y   int
 }
 
+func newCoordinate(minX, maxX, minY, maxY int, ink byte, restriction []coordinate) coordinate {
+	x, y := randXY(minX, maxX, minY, maxY)
+
+	if coordContain(restriction, coordinate{x: x, y: y}) {
+		x, y = randXY(minX, maxX, minY, maxY)
+	}
+
+	return coordinate{ink, x, y}
+}
+
 func coordShift(list []coordinate) []coordinate {
 	return list[1:]
 }

@@ -47,7 +47,7 @@ func newSnake() *snake {
 func (s *snake) move(stage *stage, food *food) {
 
 	if food.coordinate.x == s.head.x && food.coordinate.y == s.head.y {
-		food.newLocate(stage.width, stage.height)
+		food.newLocate(1, stage.width-1, 1, stage.height-1, s.getCoords())
 		// just add one element(snake'head) to body head(not snake head)
 		s.body = coordPush(s.body, s.head)
 	}
