@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -38,7 +37,7 @@ func newSnake() *snake {
 	return &snake{
 		head:   c,
 		body:   []coordinate{c},
-		speed:  time.Millisecond * 300,
+		speed:  time.Millisecond * 100,
 		direct: none,
 	}
 }
@@ -103,10 +102,9 @@ func (s *snake) checkCollidingSelf() bool {
 	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
 }
 
-// adapter translate input byte to snake direction, This function needs to be called asynchronously
-func (s *snake) adapter(input chan byte) {
+// adapt translate input byte to snake direction, This function needs to be called asynchronously
+func (s *snake) adapt(input chan byte) {
 	for i := range input {
-		fmt.Println("--->", s)
 		if i == 119 {
 			s.turning(up)
 		} else if i == 115 {

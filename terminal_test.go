@@ -8,25 +8,25 @@ import (
 
 var screen = bufio.NewWriter(os.Stdout)
 
-func Test_ScreenClear(t *testing.T) {
-	n, err := ScreenClear(screen)
+func Test_screenClear(t *testing.T) {
+	n, err := screenClear(screen)
 	if err != nil || n != 4 {
-		t.Error("ScreenClear exec error")
+		t.Error("screenClear exec error")
 	}
-	t.Logf("ScreenClear return n = %d", n)
+	t.Logf("screenClear return n = %d", n)
 }
 
-func Test_ScreenWrite(t *testing.T) {
-	n, err := ScreenWrite(screen, []byte("b"))
+func Test_screenWrite(t *testing.T) {
+	n, err := screenWrite(screen, []byte("b"))
 	if err != nil || n != 2 {
-		t.Error("ScreenWrite exec error")
+		t.Error("screenWrite exec error")
 	}
-	t.Logf("ScreenWrite return n = %d", n)
+	t.Logf("screenWrite return n = %d", n)
 }
 
-func Test_ScreenFlush(t *testing.T) {
-	if err := ScreenFlush(screen); err != nil {
-		t.Error("ScreenFlush exec error")
+func Test_screenFlush(t *testing.T) {
+	if err := screenFlush(screen); err != nil {
+		t.Error("screenFlush exec error")
 	}
 }
 

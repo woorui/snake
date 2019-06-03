@@ -13,18 +13,18 @@ var (
 	charLineBreak = byte(10)               // byte from string "\n"
 )
 
-// ScreenClear make terminal screen clear, The effect is the same as command "clear"
-func ScreenClear(screen *bufio.Writer) (int, error) {
+// screenClear make terminal screen clear, The effect is the same as command "clear"
+func screenClear(screen *bufio.Writer) (int, error) {
 	return screen.Write(charClear)
 }
 
-// ScreenWrite write content to buffer
-func ScreenWrite(screen *bufio.Writer, b []byte) (int, error) {
+// screenWrite write content to buffer
+func screenWrite(screen *bufio.Writer, b []byte) (int, error) {
 	return screen.Write(append(b, charLineBreak))
 }
 
-// ScreenFlush write content from buffer to terminal screen
-func ScreenFlush(screen *bufio.Writer) error {
+// screenFlush write content from buffer to terminal screen
+func screenFlush(screen *bufio.Writer) error {
 	return screen.Flush()
 }
 

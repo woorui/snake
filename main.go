@@ -17,21 +17,22 @@ func main() {
 
 	input := make(chan byte)
 	go keyPress(input)
-	go snake.adapter(input)
+	go snake.adapt(input)
 
 	render(screen, stage, snake, food)
 }
 
 func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
 	for {
-		ScreenClear(screen)
+		screenClear(screen)
 		if snake.checkCollidingSelf() {
 			fmt.Println("Game over, your score is ", len(snake.body)-1)
+			deCleanScreen()
 			break
 		}
 		snake.move(stage, food)
-		ScreenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
-		ScreenFlush(screen)
+		screenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
+		screenFlush(screen)
 		time.Sleep(snake.speed)
 	}
 }
