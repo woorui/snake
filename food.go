@@ -1,10 +1,5 @@
 package main
 
-import (
-	"math/rand"
-	"time"
-)
-
 var (
 	charFood = byte(111) // byte from string "o"
 )
@@ -31,17 +26,4 @@ func (f *food) newLocate(minX, maxX, minY, maxY int, restriction []coordinate) {
 func (f *food) getCoords() []coordinate {
 	var coords []coordinate
 	return append(coords, f.coordinate)
-}
-
-func randXY(minX, maxX, minY, maxY int) (x, y int) {
-	rand.Seed(time.Now().UnixNano())
-	x = randRange(minX, maxX)
-	y = randRange(minY, maxY)
-	return
-}
-
-func randRange(min, max int) int {
-	rand.Seed(time.Now().Unix())
-	randNum := rand.Intn(max-min) + min
-	return randNum
 }
