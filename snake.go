@@ -36,7 +36,7 @@ func newSnake() *snake {
 	}
 	return &snake{
 		head:   c,
-		body:   []coordinate{c},
+		body:   []coordinate{},
 		speed:  time.Millisecond * 100,
 		direct: none,
 	}
@@ -57,24 +57,24 @@ func (s *snake) move(stage *stage, food *food) {
 		return
 	} else if s.direct == up {
 		if s.head.y == 0 {
-			s.head.y = stage.height
+			s.head.y = stage.height - 1
 		} else {
 			s.head.y--
 		}
 	} else if s.direct == down {
-		if s.head.y == stage.height {
+		if s.head.y == stage.height-1 {
 			s.head.y = 0
 		} else {
 			s.head.y++
 		}
 	} else if s.direct == left {
 		if s.head.x == 0 {
-			s.head.x = stage.width
+			s.head.x = stage.width - 1
 		} else {
 			s.head.x--
 		}
 	} else if s.direct == right {
-		if s.head.x == stage.width {
+		if s.head.x == stage.width-1 {
 			s.head.x = 0
 		} else {
 			s.head.x++

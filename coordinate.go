@@ -17,6 +17,9 @@ func newCoordinate(minX, maxX, minY, maxY int, ink byte, restriction []coordinat
 }
 
 func coordShift(list []coordinate) []coordinate {
+	if len(list) == 0 {
+		return list
+	}
 	return list[1:]
 }
 
