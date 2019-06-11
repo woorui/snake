@@ -11,7 +11,7 @@ func main() {
 	watchInterrupt(exit)
 
 	screen := bufio.NewWriter(os.Stdout)
-	stage := newStage(10, 5)
+	stage := newStage(50, 25)
 	snake := newSnake()
 	// Can not locate in stage's border
 	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
