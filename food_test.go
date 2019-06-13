@@ -1,10 +1,16 @@
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"testing"
+	"time"
+)
 
-func Test_randXY(t *testing.T) {
+func Test_randRange(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < 100; i++ {
-		x, y := randXY(0, 10, 0, 10)
+		x := randRange(0, 10)
+		y := randRange(0, 10)
 		if x < 0 || x > 10 || y < 0 || y > 10 {
 			t.Error("randXY exec error")
 			return

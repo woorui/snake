@@ -16,6 +16,9 @@ type stage struct {
 }
 
 func newStage(width, height int) *stage {
+	if width < 3 || height < 3 {
+		width, height = 50, 25
+	}
 	mapping := make(map[float64]int)
 	var matrix []byte
 	index := 0

@@ -11,12 +11,18 @@ type coordinate struct {
 	y   int
 }
 
-func newCoordinate(minX, maxX, minY, maxY int, ink byte, restriction []coordinate) coordinate {
-	// fmt.Println("----")
-	x, y := randXY(minX, maxX, minY, maxY)
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
-	if coordContain(restriction, coordinate{x: x, y: y}) {
-		x, y = randXY(minX, maxX, minY, maxY)
+func newCoordinate(minX, maxX, minY, maxY int, ink byte, restriction []coordinate) coordinate {
+	x := randRange(minX, maxX)
+	y := randRange(minY, maxY)
+
+	for _, v := range restriction {
+		if v.x == x && v.y == y {
+			return newCoordinate(minX, maxX, minY, maxY, ink, restriction)
+		}
 	}
 
 	return coordinate{x: x, y: y, ink: ink}
@@ -46,15 +52,7 @@ func coordContain(list []coordinate, ele coordinate) bool {
 	return false
 }
 
-func randXY(minX, maxX, minY, maxY int) (x, y int) {
-	rand.Seed(time.Now().UnixNano())
-	x = randRange(minX, maxX)
-	y = randRange(minY, maxY)
-	return
-}
-
+// randRange returns an int >= min, < max
 func randRange(min, max int) int {
-	rand.Seed(time.Now().Unix())
-	randNum := rand.Intn(max-min) + min
-	return randNum
+	return min + rand.Intn(max-min)
 }

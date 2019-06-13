@@ -32,8 +32,9 @@ func Test_coordPush(t *testing.T) {
 func Test_coordContain(t *testing.T) {
 	isContain1 := coordContain(genMockCoordinateList(), mockCoordinate1)
 	isContain2 := coordContain(genMockCoordinateList(), mockCoordinate2)
+	isContain3 := coordContain(make([]coordinate, 1), mockCoordinate1)
 
-	if isContain1 != true || isContain2 != false {
+	if isContain1 != true || isContain2 != false || isContain3 != false {
 		t.Error("coordContain exec error")
 	}
 }
