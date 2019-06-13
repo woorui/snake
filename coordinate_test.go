@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"testing"
+	"time"
+)
 
 func genMockCoordinateList() []coordinate {
 	return []coordinate{
@@ -36,5 +40,17 @@ func Test_coordContain(t *testing.T) {
 
 	if isContain1 != true || isContain2 != false || isContain3 != false {
 		t.Error("coordContain exec error")
+	}
+}
+
+func Test_randRange(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < 100; i++ {
+		x := randRange(0, 10)
+		y := randRange(0, 10)
+		if x < 0 || x > 10 || y < 0 || y > 10 {
+			t.Error("randXY exec error")
+			return
+		}
 	}
 }
