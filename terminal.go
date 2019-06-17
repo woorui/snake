@@ -50,13 +50,17 @@ func keyPress(input chan byte) {
 }
 
 // cleanScreen make terminal not show key press input
-func cleanScreen() {
-	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
-	exec.Command("stty", "-F", "/dev/tty", "-echo").Run()
+func cleanScreen() error {
+	err := exec.Command("/bin/stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	err = exec.Command("/bin/stty", "-F", "/dev/tty", "-echo").Run()
+
+	return err
 }
 
 // deCleanScreen make terminal show key press input It is the counter operation to cleanScreen
-func deCleanScreen() {
-	exec.Command("stty", "-F", "/dev/tty", "-cbreak", "min", "1").Run()
-	exec.Command("stty", "-F", "/dev/tty", "echo").Run()
+func deCleanScreen() error {
+	err := exec.Command("/bin/stty", "-F", "/dev/tty", "-cbreak", "min", "1").Run()
+	err = exec.Command("/bin/stty", "-F", "/dev/tty", "echo").Run()
+
+	return err
 }
