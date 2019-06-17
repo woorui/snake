@@ -104,6 +104,7 @@ func (s *snake) checkCollidingSelf() bool {
 
 // adapt translate input byte to snake direction, This function needs to be called asynchronously
 func (s *snake) adapt(input chan byte) {
+	time.Sleep(s.speed / 2)
 	for i := range input {
 		if i == 119 {
 			s.turning(up)
