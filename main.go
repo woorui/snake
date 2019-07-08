@@ -31,7 +31,6 @@ func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
 			exit()
 		}
 		snake.move(stage, food)
-		fmt.Println(len(snake.getCoords()), snake.body, snake.getCoords())
 		screenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
 		screenFlush(screen)
 		time.Sleep(snake.speed)
