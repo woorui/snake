@@ -24,7 +24,8 @@ func main() {
 }
 
 func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
-	for {
+	ticker := time.NewTicker(snake.speed)
+	for range ticker.C {
 		screenClear(screen)
 		if snake.checkCollidingSelf() || len(snake.body) >= (stage.width-2)*(stage.height-2) {
 			fmt.Println("Game over, Your score is ", len(snake.body)-1)
@@ -33,7 +34,6 @@ func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
 		snake.move(stage, food)
 		screenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
 		screenFlush(screen)
-		time.Sleep(snake.speed)
 	}
 }
 
