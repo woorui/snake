@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"time"
 )
 
 var (
@@ -40,12 +41,16 @@ func watchInterrupt(fn func()) {
 	}()
 }
 
-func keyPress(input chan byte) {
+func keyPress(input chan byte, delay time.Duration) {
 	cleanScreen()
+
+	t := newDebounce(delay)
 	b := make([]byte, 1)
 	for {
 		os.Stdin.Read(b)
-		input <- b[0]
+		t.exec(func() {
+			input <- b[0]
+		})
 	}
 }
 

@@ -17,7 +17,7 @@ func main() {
 	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
 
 	input := make(chan byte)
-	go keyPress(input)
+	go keyPress(input, snake.speed)
 	go snake.adapt(input)
 
 	render(screen, stage, snake, food)
