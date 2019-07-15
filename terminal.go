@@ -49,7 +49,7 @@ func keyPress(input chan byte) {
 	}
 }
 
-// cleanScreen make terminal not show key press input
+// cleanScreen make terminal no buffering and no visible output
 func cleanScreen() error {
 	err := exec.Command("/bin/stty", "-f", "/dev/tty", "cbreak", "min", "1").Run()
 	err = exec.Command("/bin/stty", "-f", "/dev/tty", "-echo").Run()
@@ -57,7 +57,7 @@ func cleanScreen() error {
 	return err
 }
 
-// deCleanScreen make terminal show key press input It is the counter operation to cleanScreen
+// deCleanScreen is the counter operation to cleanScreen
 func deCleanScreen() error {
 	err := exec.Command("/bin/stty", "-f", "/dev/tty", "-cbreak", "min", "1").Run()
 	err = exec.Command("/bin/stty", "-f", "/dev/tty", "echo").Run()
