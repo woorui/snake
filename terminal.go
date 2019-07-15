@@ -41,10 +41,10 @@ func watchInterrupt(fn func()) {
 	}()
 }
 
-func keyPress(input chan byte, delay time.Duration) {
+func keyPress(input chan byte, interval time.Duration) {
 	cleanScreen()
 
-	t := newDebounce(delay)
+	t := newThrottle(interval)
 	b := make([]byte, 1)
 	for {
 		os.Stdin.Read(b)
