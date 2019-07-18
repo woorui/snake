@@ -12,4 +12,4 @@ The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 
 ![Show the running result](snake.gif)
 
-
+### Test not completed...
