@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -41,8 +42,17 @@ func watchInterrupt(fn func()) {
 	}()
 }
 
-func keyPress(input chan byte, interval time.Duration) {
-	cleanScreen()
+func watchInput(input chan byte, interval time.Duration) {
+	// no buffering
+	err := exec.Command("/bin/stty", "-f", "/dev/tty", "cbreak", "min", "1").Run()
+	if err != nil {
+		log.Fatalln("Your platform don't support snake")
+	}
+	// no visible output
+	err = exec.Command("/bin/stty", "-f", "/dev/tty", "-echo").Run()
+	if err != nil {
+		log.Fatalln("Your platform don't support snake")
+	}
 
 	t := newThrottle(interval)
 	b := make([]byte, 1)
@@ -52,20 +62,4 @@ func keyPress(input chan byte, interval time.Duration) {
 			input <- b[0]
 		})
 	}
-}
-
-// cleanScreen make terminal no buffering and no visible output
-func cleanScreen() error {
-	err := exec.Command("/bin/stty", "-f", "/dev/tty", "cbreak", "min", "1").Run()
-	err = exec.Command("/bin/stty", "-f", "/dev/tty", "-echo").Run()
-
-	return err
-}
-
-// deCleanScreen is the counter operation to cleanScreen
-func deCleanScreen() error {
-	err := exec.Command("/bin/stty", "-f", "/dev/tty", "-cbreak", "min", "1").Run()
-	err = exec.Command("/bin/stty", "-f", "/dev/tty", "echo").Run()
-
-	return err
 }

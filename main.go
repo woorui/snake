@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -17,7 +19,7 @@ func main() {
 	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
 
 	input := make(chan byte)
-	go keyPress(input, snake.speed/2)
+	go watchInput(input, snake.speed/2)
 	go snake.adapt(input)
 
 	render(screen, stage, snake, food)
@@ -38,6 +40,13 @@ func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
 }
 
 func exit() {
-	deCleanScreen()
+	err := exec.Command("/bin/stty", "-f", "/dev/tty", "-cbreak", "min", "1").Run()
+	if err != nil {
+		log.Fatalln("Your platform dont't support snake")
+	}
+	err = exec.Command("/bin/stty", "-f", "/dev/tty", "echo").Run()
+	if err != nil {
+		log.Fatalln("Your platform dont't support snake")
+	}
 	os.Exit(0)
 }

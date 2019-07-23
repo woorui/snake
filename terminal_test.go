@@ -29,12 +29,3 @@ func Test_screenFlush(t *testing.T) {
 		t.Error("screenFlush exec error")
 	}
 }
-
-func Test_cleanScreen_deCleanScreen(t *testing.T) {
-	err1 := cleanScreen()
-	err2 := deCleanScreen()
-	if err1 != nil || err2 != nil {
-		t.Log("cleanScreen and deCleanScreen exec fail")
-	}
-	t.Log("cleanScreen and deCleanScreen exec success")
-}
