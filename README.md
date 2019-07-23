@@ -4,11 +4,14 @@
 
 The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 
-### Running in the project directory without building
+### Running in the project directory without building, just for test
 > go run $(ls -1 *.go | grep -v _test.go)
 
 ### Installation
 > go get -u github.com/woorui/snake
+
+### Running snake if you has setup the go environment variable
+> snake
 
 ![Show the running result](snake.gif)
 
