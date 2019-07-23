@@ -10,7 +10,7 @@ The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 ### Installation
 > go get -u github.com/woorui/snake
 
-### Running snake if you has setup the go environment variable
+### Runn the game snake if you has setup the go environment variable
 > snake
 
 ![Show the running result](snake.gif)
