@@ -24,10 +24,10 @@ func newStage(width, height int) *stage {
 	index := 0
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			if x == 0 || x == width-1 {
-				matrix = append(matrix, charLeftRightBorder)
-			} else if y == height-1 || y == 0 {
+			if y == height-1 || y == 0 {
 				matrix = append(matrix, charTopBottomBorder)
+			} else if x == 0 || x == width-1 {
+				matrix = append(matrix, charLeftRightBorder)
 			} else {
 				matrix = append(matrix, charBlank)
 			}
