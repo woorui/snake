@@ -36,7 +36,7 @@ func Test_newStage_draw(t *testing.T) {
 	width1, height1 := 3, 3
 	stage1 := newStage(width1, height1)
 
-	if !byteSliceEqual(stage1.matrix, []byte{124, 45, 124, 10, 124, 32, 124, 10, 124, 45, 124, 10}) ||
+	if !byteSliceEqual(stage1.matrix, []byte{45, 45, 45, 10, 124, 32, 124, 10, 45, 45, 45, 10}) ||
 		!reflect.DeepEqual(stage1.mapping, map[float64]int{4: 8, 7: 9, 0: 0, 1: 1, 3: 2, 1.5: 4, 3.5: 5, 6.5: 6, 11: 10}) {
 		t.Errorf("newStage(%d, %d) return mapping is %v, matrix is %v. not match except", width1, height1, stage1.mapping, stage1.matrix)
 	}
@@ -48,7 +48,7 @@ func Test_newStage_draw(t *testing.T) {
 	}
 
 	m1 := stage1.draw(coords1)
-	except1 := []byte{0, 45, 124, 10, 124, 32, 124, 10, 124, 0, 124, 10}
+	except1 := []byte{0, 45, 45, 10, 124, 32, 124, 10, 45, 0, 45, 10}
 	if !byteSliceEqual(m1, except1) {
 		t.Errorf("newStage(%d, %d).draw(%v) return %v except %v", width1, height1, coords1, m1, except1)
 	}
