@@ -10,8 +10,12 @@ The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 ### Installation
 > go get -u github.com/woorui/snake
 
-### Runn the game snake if you has setup the go environment variable
+### Run the game snake if you has setup the go environment variable
 > snake
+
+### Running in docker
+> docker pull qq1009479218/snake
+> docker run -it --rm qq1009479218/snake
 
 ![Show the running result](snake.gif)
 
