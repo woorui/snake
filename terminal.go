@@ -7,7 +7,10 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"time"
+
+	"errors"
 )
 
 var (
@@ -43,13 +46,18 @@ func watchInterrupt(fn func()) {
 }
 
 func watchInput(input chan byte, interval time.Duration) {
+	goos := runtime.GOOS
+	dashF, err := polyfillDashF(goos)
+	if err != nil {
+		log.Fatalln("dashF: ", err)
+	}
 	// no buffering
-	err := exec.Command("/bin/stty", "-f", "/dev/tty", "cbreak", "min", "1").Run()
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "cbreak", "min", "1").Run()
 	if err != nil {
 		log.Fatalln("Your platform don't support snake")
 	}
 	// no visible output
-	err = exec.Command("/bin/stty", "-f", "/dev/tty", "-echo").Run()
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-echo").Run()
 	if err != nil {
 		log.Fatalln("Your platform don't support snake")
 	}
@@ -61,5 +69,34 @@ func watchInput(input chan byte, interval time.Duration) {
 		t.exec(func() {
 			input <- b[0]
 		})
+	}
+}
+
+// exit call when snake dead or Interrupt
+func exit() {
+	goos := runtime.GOOS
+	dashF, err := polyfillDashF(goos)
+	if err != nil {
+		log.Fatalln("dashF: ", err)
+	}
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-cbreak", "min", "1").Run()
+	if err != nil {
+		log.Fatalln("Your platform dont't support snake")
+	}
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "echo").Run()
+	if err != nil {
+		log.Fatalln("Your platform dont't support snake")
+	}
+	os.Exit(0)
+}
+
+func polyfillDashF(goos string) (string, error) {
+	switch goos {
+	case "darwin":
+		return "-f", nil
+	case "linux":
+		return "-F", nil
+	default:
+		return "", errors.New("Your platform don't support snake")
 	}
 }
