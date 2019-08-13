@@ -13,7 +13,7 @@ The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 ### Run the game snake if you has setup the go environment variable
 > snake
 
-### Running in docker (It's dont't need go but docker installed)
+### Running in docker (It's don't need go but docker installed)
 > docker pull qq1009479218/snake
 > docker run -it --rm qq1009479218/snake
 
