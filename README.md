@@ -2,9 +2,9 @@
 
 ## Game snake written in go
 
-The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
+The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows (but docker below)
 
-### Running in the project directory without building, just for test
+### Running in the project directory without building, just for testing
 > go run $(ls -1 *.go | grep -v _test.go)
 
 ### Installation
@@ -13,8 +13,7 @@ The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows
 ### Run the game snake if you has setup the go environment variable
 > snake
 
-### Running in docker (It's don't need go but docker installed)
-> docker pull qq1009479218/snake
+### Running in docker (It's don't need go env but docker installed)
 > docker run -it --rm qq1009479218/snake
 
 ![Show the running result](snake.gif)
