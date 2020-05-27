@@ -1,6 +1,8 @@
-# Game snake written in go
+# Game snake written in go, No third-dependence
 
-The snake is controlled with `w`, `a`, `s` and `d`.It don't support windows (but docker support)
+[![Build Status](https://cloud.drone.io/api/badges/woorui/snake/status.svg)](https://cloud.drone.io/woorui/snake)
+
+The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (but docker support)
 
 ## Running in the project directory without building, just for testing
 
