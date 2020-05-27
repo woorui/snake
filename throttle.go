@@ -12,6 +12,7 @@ type throttle struct {
 }
 
 // newThrottle construct a throttle instance
+// TODO: data race
 func newThrottle(interval time.Duration) *throttle {
 	d := &throttle{
 		state:    false,
