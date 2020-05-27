@@ -15,7 +15,7 @@ steps:
     event:
     - push
 
-- name: integration
+- name: test
   image: golang
   commands:
   - go test -v
