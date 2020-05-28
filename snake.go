@@ -105,6 +105,25 @@ func (s *snake) turning(direct direction) {
 	s.direct = direct
 }
 
+func (s *snake) turningInchannel(input chan byte) {
+	for i := range input {
+		switch i {
+		case 119:
+			s.turning(up)
+			break
+		case 115:
+			s.turning(down)
+			break
+		case 97:
+			s.turning(left)
+			break
+		case 100:
+			s.turning(right)
+			break
+		}
+	}
+}
+
 // checkCollidingSelf use to check colliding snakeSelf
 func (s *snake) checkCollidingSelf() bool {
 	body := s.body

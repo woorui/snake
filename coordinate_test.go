@@ -8,10 +8,10 @@ import (
 
 func genMockCoordinateList() []coordinate {
 	return []coordinate{
-		coordinate{x: 1, y: 1},
-		coordinate{x: 2, y: 2},
-		coordinate{x: 3, y: 3},
-		coordinate{x: 4, y: 4},
+		{x: 1, y: 1},
+		{x: 2, y: 2},
+		{x: 3, y: 3},
+		{x: 4, y: 4},
 	}
 }
 
