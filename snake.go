@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -23,24 +24,30 @@ const (
 
 // snake is the snake that can moving
 type snake struct {
-	mu     sync.Mutex
-	head   coordinate
-	body   []coordinate
-	speed  time.Duration
-	direct direction
+	mu        sync.Mutex
+	head      coordinate
+	body      []coordinate
+	gradient  time.Duration
+	ticker    *time.Ticker
+	rateLimit chan struct{}
+	direct    direction
+	used      int
 }
 
 func newSnake() *snake {
+	initialSpeed := 120 * time.Millisecond
 	c := coordinate{
 		ink: charSnakeBody,
 		x:   2,
 		y:   2,
 	}
 	return &snake{
-		head:   c,
-		body:   []coordinate{},
-		speed:  time.Millisecond * 120,
-		direct: none,
+		head:      c,
+		body:      []coordinate{},
+		rateLimit: make(chan struct{}, 1),
+		ticker:    time.NewTicker(initialSpeed),
+		direct:    none,
+		used:      0,
 	}
 }
 
@@ -109,16 +116,24 @@ func (s *snake) checkCollidingSelf() bool {
 
 // adapt translate input byte to snake direction, This function needs to be called asynchronously
 func (s *snake) adapt(input chan byte) {
-	for i := range input {
-		if i == 119 {
+	select {
+	case <-s.rateLimit:
+		switch <-input {
+		case 119:
 			s.turning(up)
-		} else if i == 115 {
+			break
+		case 115:
 			s.turning(down)
-		} else if i == 97 {
+			break
+		case 97:
 			s.turning(left)
-		} else if i == 100 {
+			break
+		case 100:
 			s.turning(right)
+			break
 		}
+	default:
+		fmt.Println("----")
 	}
 }
 

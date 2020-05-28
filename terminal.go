@@ -3,20 +3,21 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"time"
 
 	"errors"
 )
 
 var (
-	charClear     = []byte{27, 91, 50, 74} // byte from string "\033[2J"
-	charLineBreak = byte(10)               // byte from string "\n"
+	charClear     = []byte("\033[2J") // byte from string "\033[2J"
+	charLineBreak = byte('\n')        // byte from string "\n"
 )
+
+// ErrPlatformDontSupport said that platform don't support snake
+var ErrPlatformDontSupport = errors.New("Your platform don't support snake")
 
 // screenClear make terminal screen clear, The effect is the same as command "clear"
 func screenClear(screen *bufio.Writer) (int, error) {
@@ -45,52 +46,21 @@ func watchInterrupt(fn func()) {
 	}()
 }
 
-func watchInput(input chan byte, interval time.Duration) {
-	goos := runtime.GOOS
-	dashF, err := polyfillDashF(goos)
-	if err != nil {
-		log.Fatalln("dashF: ", err)
-	}
-	// no buffering
-	err = exec.Command("/bin/stty", dashF, "/dev/tty", "cbreak", "min", "1").Run()
-	if err != nil {
-		log.Fatalln("Your platform don't support snake")
-	}
-	// no visible output
-	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-echo").Run()
-	if err != nil {
-		log.Fatalln("Your platform don't support snake")
-	}
-
-	b := make([]byte, 1)
-	limiter := time.NewTicker(interval)
+func watchInput() chan byte {
+	input := make(chan byte)
 	go func() {
+		b := make([]byte, 1)
 		for {
 			os.Stdin.Read(b)
-			select {
-			case <-limiter.C:
-				input <- b[0]
-			default:
-			}
+			input <- b[0]
 		}
 	}()
+	return input
 }
 
 // exit call when snake dead or Interrupt
 func exit() {
-	goos := runtime.GOOS
-	dashF, err := polyfillDashF(goos)
-	if err != nil {
-		log.Fatalln("dashF: ", err)
-	}
-	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-cbreak", "min", "1").Run()
-	if err != nil {
-		log.Fatalln("Your platform dont't support snake")
-	}
-	err = exec.Command("/bin/stty", dashF, "/dev/tty", "echo").Run()
-	if err != nil {
-		log.Fatalln("Your platform dont't support snake")
-	}
+	recoverNonOutputAndNobuffer()
 	os.Exit(0)
 }
 
@@ -103,4 +73,40 @@ func polyfillDashF(goos string) (string, error) {
 	default:
 		return "", errors.New("Your platform don't support snake")
 	}
+}
+
+func nonOutputAndNobuffer() error {
+	goos := runtime.GOOS
+	dashF, err := polyfillDashF(goos)
+	if err != nil {
+		return errors.New("Your platform don't support snake")
+	}
+	// no buffering
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "cbreak", "min", "1").Run()
+	if err != nil {
+		return errors.New("Your platform don't support snake")
+	}
+	// no visible output
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-echo").Run()
+	if err != nil {
+		return errors.New("Your platform don't support snake")
+	}
+	return nil
+}
+
+func recoverNonOutputAndNobuffer() error {
+	goos := runtime.GOOS
+	dashF, err := polyfillDashF(goos)
+	if err != nil {
+		return ErrPlatformDontSupport
+	}
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-cbreak", "min", "1").Run()
+	if err != nil {
+		return ErrPlatformDontSupport
+	}
+	err = exec.Command("/bin/stty", dashF, "/dev/tty", "echo").Run()
+	if err != nil {
+		return ErrPlatformDontSupport
+	}
+	return nil
 }

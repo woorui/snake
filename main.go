@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
 )
 
 func main() {
@@ -16,17 +15,24 @@ func main() {
 	// Can not locate in stage's border
 	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
 
-	input := make(chan byte)
-	go watchInput(input, snake.speed/2)
-	go snake.adapt(input)
+	nonOutputAndNobuffer()
+
+	go func() {
+		snake.rateLimit <- struct{}{}
+	}()
+
+	go snake.adapt(watchInput())
 
 	render(screen, stage, snake, food)
 }
 
 func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
-	ticker := time.NewTicker(snake.speed)
-	for range ticker.C {
-		screenClear(screen)
+	for range snake.ticker.C {
+		go func() {
+			snake.rateLimit <- struct{}{}
+		}()
+		fmt.Println("=====0")
+		// screenClear(screen)
 		if snake.checkCollidingSelf() || len(snake.body) >= (stage.width-2)*(stage.height-2) {
 			fmt.Println("Game over, Your score is ", len(snake.body)-1)
 			exit()
