@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	charSnakeBody = byte(42) // byte from string "*"
+	charSnakeBody = byte('*')
 )
 
 // direction is the direction of snake

@@ -1,7 +1,7 @@
 package main
 
 var (
-	charFood = byte(111) // byte from string "o"
+	charFood = byte('o')
 )
 
 // food is a random point within stage

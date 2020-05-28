@@ -62,7 +62,7 @@ func watchInput(input chan byte, interval time.Duration) {
 		log.Fatalln("Your platform don't support snake")
 	}
 
-	t := newThrottle(interval*2)
+	t := newThrottle(interval * 2)
 	b := make([]byte, 1)
 	for {
 		os.Stdin.Read(b)

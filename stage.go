@@ -1,10 +1,10 @@
 package main
 
 var (
-	charTopBottomBorder = byte(45)   // byte from string "-"
-	charLeftRightBorder = byte(124)  // byte from string "|"
-	charBlank           = byte(32)   // byte from string " "
-	charBreak           = byte('\n') // break line char
+	charTopBottomBorder = byte('-')
+	charLeftRightBorder = byte('|')
+	charBlank           = byte(' ')
+	charBreak           = byte('\n')
 )
 
 // stage is where snake and food locate
