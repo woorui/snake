@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"time"
 )
 
@@ -9,7 +10,7 @@ var (
 )
 
 // direction is the direction of snake
-type direction int
+type direction int8
 
 // enum direction
 const (
@@ -22,6 +23,7 @@ const (
 
 // snake is the snake that can moving
 type snake struct {
+	mu     sync.Mutex
 	head   coordinate
 	body   []coordinate
 	speed  time.Duration
@@ -45,13 +47,14 @@ func newSnake() *snake {
 // move function make snake move.
 // The snake first appeared in the top-left corner.
 func (s *snake) move(stage *stage, food *food) {
-
 	if food.coordinate.x == s.head.x && food.coordinate.y == s.head.y {
 		food.newLocate(1, stage.width-1, 1, stage.height-1, append(s.getCoords(), food.getCoords()...))
 		// just add one element(snake'head) to body head(not snake head)
 		s.body = coordPush(s.body, s.head)
 	}
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	// change direction
 	if s.direct == none {
 		return
@@ -85,6 +88,8 @@ func (s *snake) move(stage *stage, food *food) {
 }
 
 func (s *snake) turning(direct direction) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	currentDirect := s.direct
 	// Not change when negative or positive directiton
 	if currentDirect == direct || currentDirect+direct == 0 {
