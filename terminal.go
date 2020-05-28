@@ -63,7 +63,7 @@ func watchInput(input chan byte, interval time.Duration) {
 	}
 
 	b := make([]byte, 1)
-	limiter := time.Tick(interval * 2)
+	limiter := time.Tick(interval)
 	for {
 		os.Stdin.Read(b)
 		select {
