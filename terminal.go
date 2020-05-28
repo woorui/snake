@@ -63,15 +63,17 @@ func watchInput(input chan byte, interval time.Duration) {
 	}
 
 	b := make([]byte, 1)
-	limiter := time.Tick(interval)
-	for {
-		os.Stdin.Read(b)
-		select {
-		case <-limiter:
-			input <- b[0]
-		default:
+	limiter := time.NewTicker(interval)
+	go func() {
+		for {
+			os.Stdin.Read(b)
+			select {
+			case <-limiter.C:
+				input <- b[0]
+			default:
+			}
 		}
-	}
+	}()
 }
 
 // exit call when snake dead or Interrupt
