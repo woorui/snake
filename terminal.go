@@ -62,13 +62,16 @@ func watchInput(input chan byte, interval time.Duration) {
 		log.Fatalln("Your platform don't support snake")
 	}
 
-	t := newThrottle(interval * 2)
 	b := make([]byte, 1)
+	limiter := time.Tick(interval * 2)
 	for {
 		os.Stdin.Read(b)
-		t.exec(func() {
+		select {
+		case <-limiter:
 			input <- b[0]
-		})
+		default:
+			input <- b[0]
+		}
 	}
 }
 
