@@ -70,7 +70,6 @@ func watchInput(input chan byte, interval time.Duration) {
 		case <-limiter:
 			input <- b[0]
 		default:
-			input <- b[0]
 		}
 	}
 }
