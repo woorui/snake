@@ -24,14 +24,15 @@ const (
 
 // snake is the snake that can moving
 type snake struct {
-	mu        sync.Mutex
-	head      coordinate
-	body      []coordinate
-	gradient  time.Duration
-	ticker    *time.Ticker
-	rateLimit chan struct{}
-	direct    direction
-	used      int
+	mu         sync.Mutex
+	head       coordinate
+	body       []coordinate
+	gradient   time.Duration
+	ticker     *time.Ticker
+	rateLimit  chan bool
+	direct     direction
+	directChan chan direction
+	used       int
 }
 
 func newSnake() *snake {
@@ -42,12 +43,14 @@ func newSnake() *snake {
 		y:   2,
 	}
 	return &snake{
-		head:      c,
-		body:      []coordinate{},
-		rateLimit: make(chan struct{}, 1),
-		ticker:    time.NewTicker(initialSpeed),
-		direct:    none,
-		used:      0,
+		head:       c,
+		mu:         sync.Mutex{},
+		body:       []coordinate{},
+		rateLimit:  make(chan bool),
+		directChan: make(chan direction),
+		ticker:     time.NewTicker(initialSpeed),
+		direct:     none,
+		used:       0,
 	}
 }
 
@@ -121,6 +124,30 @@ func (s *snake) turningInchannel(input chan byte) {
 			s.turning(right)
 			break
 		}
+	}
+}
+
+func (s *snake) turningInchannelWithLock(input chan byte) {
+	select {
+	case b := <-s.rateLimit:
+		if b {
+			switch <-input {
+			case 119:
+				s.turning(up)
+				break
+			case 115:
+				s.turning(down)
+				break
+			case 97:
+				s.turning(left)
+				break
+			case 100:
+				s.turning(right)
+				break
+			}
+		}
+	default:
+		s.rateLimit <- false
 	}
 }
 
