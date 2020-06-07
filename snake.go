@@ -57,14 +57,14 @@ func newSnake() *snake {
 // move function make snake move.
 // The snake first appeared in the top-left corner.
 func (s *snake) move(stage *stage, food *food) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if food.coordinate.x == s.head.x && food.coordinate.y == s.head.y {
 		food.newLocate(1, stage.width-1, 1, stage.height-1, append(s.getCoords(), food.getCoords()...))
 		// just add one element(snake'head) to body head(not snake head)
 		s.body = coordPush(s.body, s.head)
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	// change direction
 	if s.direct == none {
 		return
@@ -98,10 +98,15 @@ func (s *snake) move(stage *stage, food *food) {
 }
 
 func (s *snake) turning(direct direction) {
+	if s.isDirectionLocked() {
+		return
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	currentDirect := s.direct
+
 	// Not change when negative or positive directiton
+	currentDirect := s.direct
+	s.lockDirection()
 	if currentDirect == direct || currentDirect+direct == 0 {
 		return
 	}
@@ -186,4 +191,17 @@ func (s *snake) adapt(input chan byte) {
 func (s *snake) getCoords() []coordinate {
 	coords := []coordinate{s.head}
 	return append(coords, s.body...)
+}
+
+// 1：lock
+// 0：unlock
+func (s *snake) lockDirection() {
+	s.used = 1
+}
+func (s *snake) unLockDirection() {
+	s.used = 0
+}
+
+func (s *snake) isDirectionLocked() bool {
+	return s.used == 1
 }

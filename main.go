@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -19,7 +20,25 @@ func main() {
 
 	go snake.turningInchannel(watchInput())
 
-	render(screen, stage, snake, food)
+	directionLock, moving := broadcastTicker(120 * time.Millisecond)
+
+	for {
+		select {
+		case <-moving:
+			screenClear(screen)
+			if snake.checkCollidingSelf() || len(snake.body) >= (stage.width-2)*(stage.height-2) {
+				fmt.Println("Game over, Your score is ", len(snake.body)-1)
+				exit()
+			}
+			snake.move(stage, food)
+
+			screenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
+			screenFlush(screen)
+		case <-directionLock:
+			snake.unLockDirection()
+		default:
+		}
+	}
 }
 
 func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
@@ -33,4 +52,17 @@ func render(screen *bufio.Writer, stage *stage, snake *snake, food *food) {
 		screenWrite(screen, stage.draw(append(snake.getCoords(), food.getCoords()...)))
 		screenFlush(screen)
 	}
+}
+
+func broadcastTicker(d time.Duration) (chan bool, chan struct{}) {
+	directionLock := make(chan bool)
+	moving := make(chan struct{})
+	ticker := time.NewTicker(d)
+	go func() {
+		for range ticker.C {
+			directionLock <- true
+			moving <- struct{}{}
+		}
+	}()
+	return directionLock, moving
 }
