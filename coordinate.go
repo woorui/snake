@@ -39,11 +39,8 @@ func coordPush(list []coordinate, ele coordinate) []coordinate {
 	return append(list, ele)
 }
 
-// coordContain determine whether list contains ele
+// coordContain returns whether list contains ele
 func coordContain(list []coordinate, ele coordinate) bool {
-	if len(list) == 0 {
-		return false
-	}
 	for _, item := range list {
 		if ele.x == item.x && ele.y == item.y {
 			return true

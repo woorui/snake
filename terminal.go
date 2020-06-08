@@ -16,9 +16,6 @@ var (
 	charLineBreak = byte('\n')        // byte from string "\n"
 )
 
-// ErrPlatformDontSupport said that platform don't support snake
-var ErrPlatformDontSupport = errors.New("Your platform don't support snake")
-
 // screenClear make terminal screen clear, The effect is the same as command "clear"
 func screenClear(screen *bufio.Writer) (int, error) {
 	return screen.Write(charClear)

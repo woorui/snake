@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -24,33 +23,26 @@ const (
 
 // snake is the snake that can moving
 type snake struct {
-	mu         sync.Mutex
-	head       coordinate
-	body       []coordinate
-	gradient   time.Duration
-	ticker     *time.Ticker
-	rateLimit  chan bool
-	direct     direction
-	directChan chan direction
-	used       int
+	mu       sync.Mutex
+	head     coordinate
+	body     []coordinate
+	gradient time.Duration
+	direct   direction
+	used     int
 }
 
 func newSnake() *snake {
-	initialSpeed := 120 * time.Millisecond
 	c := coordinate{
 		ink: charSnakeBody,
 		x:   2,
 		y:   2,
 	}
 	return &snake{
-		head:       c,
-		mu:         sync.Mutex{},
-		body:       []coordinate{},
-		rateLimit:  make(chan bool),
-		directChan: make(chan direction),
-		ticker:     time.NewTicker(initialSpeed),
-		direct:     none,
-		used:       0,
+		head:   c,
+		mu:     sync.Mutex{},
+		body:   []coordinate{},
+		direct: none,
+		used:   0,
 	}
 }
 
@@ -132,30 +124,6 @@ func (s *snake) turningInchannel(input chan byte) {
 	}
 }
 
-func (s *snake) turningInchannelWithLock(input chan byte) {
-	select {
-	case b := <-s.rateLimit:
-		if b {
-			switch <-input {
-			case 119:
-				s.turning(up)
-				break
-			case 115:
-				s.turning(down)
-				break
-			case 97:
-				s.turning(left)
-				break
-			case 100:
-				s.turning(right)
-				break
-			}
-		}
-	default:
-		s.rateLimit <- false
-	}
-}
-
 // checkCollidingSelf use to check colliding snakeSelf
 func (s *snake) checkCollidingSelf() bool {
 	body := s.body
@@ -163,29 +131,6 @@ func (s *snake) checkCollidingSelf() bool {
 	bodySize := len(body)
 
 	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
-}
-
-// adapt translate input byte to snake direction, This function needs to be called asynchronously
-func (s *snake) adapt(input chan byte) {
-	select {
-	case <-s.rateLimit:
-		switch <-input {
-		case 119:
-			s.turning(up)
-			break
-		case 115:
-			s.turning(down)
-			break
-		case 97:
-			s.turning(left)
-			break
-		case 100:
-			s.turning(right)
-			break
-		}
-	default:
-		fmt.Println("----")
-	}
 }
 
 func (s *snake) getCoords() []coordinate {
