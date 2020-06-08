@@ -25,7 +25,7 @@ func main() {
 	for {
 		select {
 		case <-moving:
-			screenClear(screen)
+			screenClear(screen) // race here
 			if snake.checkCollidingSelf() || len(snake.body) >= (stage.width-2)*(stage.height-2) {
 				fmt.Println("Game over, Your score is ", len(snake.body)-1)
 				exit()
