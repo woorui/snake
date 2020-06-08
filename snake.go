@@ -106,22 +106,40 @@ func (s *snake) turning(direct direction) {
 }
 
 func (s *snake) turningInchannel(input chan byte) {
-	for i := range input {
-		switch i {
-		case 119:
-			s.turning(up)
-			break
-		case 115:
-			s.turning(down)
-			break
-		case 97:
-			s.turning(left)
-			break
-		case 100:
-			s.turning(right)
-			break
+	for {
+		select {
+		case i := <-input:
+			switch i {
+			case 119:
+				s.tryChangeDirection(up)
+				break
+			case 115:
+				s.tryChangeDirection(down)
+				break
+			case 97:
+				s.tryChangeDirection(left)
+				break
+			case 100:
+				s.tryChangeDirection(right)
+				break
+			}
+		default:
 		}
 	}
+}
+
+func (s *snake) tryChangeDirection(direct direction) {
+	if s.isDirectionLocked() {
+		return
+	}
+	s.lockDirection()
+	currentDirect := s.direct
+	if currentDirect == direct || currentDirect+direct == 0 {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.direct = direct
 }
 
 // checkCollidingSelf use to check colliding snakeSelf
@@ -141,9 +159,13 @@ func (s *snake) getCoords() []coordinate {
 // 1：lock
 // 0：unlock
 func (s *snake) lockDirection() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.used = 1
 }
 func (s *snake) unLockDirection() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.used = 0
 }
 
