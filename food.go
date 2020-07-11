@@ -4,26 +4,27 @@ var (
 	charFood = byte('o')
 )
 
-// food is a random point within stage
-type food struct {
-	coordinate coordinate
+// Food is a random point within stage
+type Food struct {
+	coord Coord
 }
 
-// newFood generate a random point within a scope
-// args restriction is that food can't locate in
-func newFood(minX, maxX, minY, maxY int, restriction []coordinate) *food {
-	c := newCoordinate(minX, maxX, minY, maxY, charFood, restriction)
-	return &food{coordinate: c}
+// NewFood generate a random point within a scope
+// args ban is that food can't locate in
+func NewFood(minX, maxX, minY, maxY int, ban []Coord) *Food {
+	c := NewCoord(minX, maxX, minY, maxY, charFood, ban)
+	return &Food{coord: c}
 }
 
-func (f *food) newLocate(minX, maxX, minY, maxY int, restriction []coordinate) {
-	c := newCoordinate(minX, maxX, minY, maxY, charFood, restriction)
+func (food *Food) newLocate(minX, maxX, minY, maxY int, ban []Coord) {
+	c := NewCoord(minX, maxX, minY, maxY, charFood, ban)
 
-	f.coordinate.x = c.x
-	f.coordinate.y = c.y
+	food.coord.x = c.x
+	food.coord.y = c.y
 }
 
-func (f *food) getCoords() []coordinate {
-	var coords []coordinate
-	return append(coords, f.coordinate)
+func (food *Food) getCoordList() CoordList {
+	var coords CoordList
+	coords.push(food.coord)
+	return coords
 }

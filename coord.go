@@ -12,6 +12,11 @@ type Coord struct {
 	y   int
 }
 
+// ICoordCollection is a coord collection
+type ICoordCollection interface {
+	getCoordList() CoordList
+}
+
 // CoordList is an array of Coord
 type CoordList []Coord
 
@@ -57,4 +62,13 @@ func (list *CoordList) contain(ele Coord) bool {
 		}
 	}
 	return false
+}
+
+func (list CoordList) concat(others CoordList) CoordList {
+	return append(list, others...)
+}
+
+// randRange returns an int >= min, < max
+func randRange(min, max int) int {
+	return min + rand.Intn(max-min)
 }

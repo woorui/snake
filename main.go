@@ -14,7 +14,7 @@ func main() {
 	stage := newStage(25, 12)
 	snake := newSnake()
 	// Can not locate in stage's border
-	food := newFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
+	food := NewFood(1, stage.width-1, 1, stage.height-1, snake.getCoords())
 
 	nonOutputAndNobuffer()
 

@@ -11,7 +11,7 @@ type Game struct {
 	Height int8
 	snake  snake
 	stage  stage
-	food   food
+	food   Food
 	screen *bufio.Writer
 }
 

@@ -24,7 +24,7 @@ const (
 // snake is the snake that can moving
 type snake struct {
 	mu       sync.Mutex
-	head     coordinate
+	head     Coord
 	body     []coordinate
 	gradient time.Duration
 	direct   direction
@@ -32,7 +32,7 @@ type snake struct {
 }
 
 func newSnake() *snake {
-	c := coordinate{
+	c := Coord{
 		ink: charSnakeBody,
 		x:   2,
 		y:   2,
@@ -151,8 +151,10 @@ func (s *snake) checkCollidingSelf() bool {
 	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
 }
 
-func (s *snake) getCoords() []coordinate {
-	coords := []coordinate{s.head}
+func (s *snake) getCoords() CoordList {
+	var coords CoordList
+	coords.push(s.head)
+	coords := []coordinate{}
 	return append(coords, s.body...)
 }
 
