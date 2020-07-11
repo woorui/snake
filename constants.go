@@ -1,5 +1,7 @@
 package main
 
+import "errors"
+
 // CharSnakeBody is used to render snake's body.
 const CharSnakeBody = byte('*')
 
@@ -24,3 +26,6 @@ var CharClear = []byte("\033[2J")
 const defaultGameHeight = 25
 
 const defaultGameWidth = 12
+
+// ErrPlatformDontSupport said that platform don't support snake
+var ErrPlatformDontSupport = errors.New("Your platform don't support snake")

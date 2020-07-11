@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -24,33 +23,26 @@ const (
 
 // snake is the snake that can moving
 type snake struct {
-	mu         sync.Mutex
-	head       coordinate
-	body       []coordinate
-	gradient   time.Duration
-	ticker     *time.Ticker
-	rateLimit  chan bool
-	direct     direction
-	directChan chan direction
-	used       int
+	mu       sync.Mutex
+	head     coordinate
+	body     []coordinate
+	gradient time.Duration
+	direct   direction
+	used     int
 }
 
 func newSnake() *snake {
-	initialSpeed := 120 * time.Millisecond
 	c := coordinate{
 		ink: charSnakeBody,
 		x:   2,
 		y:   2,
 	}
 	return &snake{
-		head:       c,
-		mu:         sync.Mutex{},
-		body:       []coordinate{},
-		rateLimit:  make(chan bool),
-		directChan: make(chan direction),
-		ticker:     time.NewTicker(initialSpeed),
-		direct:     none,
-		used:       0,
+		head:   c,
+		mu:     sync.Mutex{},
+		body:   []coordinate{},
+		direct: none,
+		used:   0,
 	}
 }
 
@@ -114,46 +106,40 @@ func (s *snake) turning(direct direction) {
 }
 
 func (s *snake) turningInchannel(input chan byte) {
-	for i := range input {
-		switch i {
-		case 119:
-			s.turning(up)
-			break
-		case 115:
-			s.turning(down)
-			break
-		case 97:
-			s.turning(left)
-			break
-		case 100:
-			s.turning(right)
-			break
+	for {
+		select {
+		case i := <-input:
+			switch i {
+			case 119:
+				s.tryChangeDirection(up)
+				break
+			case 115:
+				s.tryChangeDirection(down)
+				break
+			case 97:
+				s.tryChangeDirection(left)
+				break
+			case 100:
+				s.tryChangeDirection(right)
+				break
+			}
+		default:
 		}
 	}
 }
 
-func (s *snake) turningInchannelWithLock(input chan byte) {
-	select {
-	case b := <-s.rateLimit:
-		if b {
-			switch <-input {
-			case 119:
-				s.turning(up)
-				break
-			case 115:
-				s.turning(down)
-				break
-			case 97:
-				s.turning(left)
-				break
-			case 100:
-				s.turning(right)
-				break
-			}
-		}
-	default:
-		s.rateLimit <- false
+func (s *snake) tryChangeDirection(direct direction) {
+	if s.isDirectionLocked() {
+		return
 	}
+	s.lockDirection()
+	currentDirect := s.direct
+	if currentDirect == direct || currentDirect+direct == 0 {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.direct = direct
 }
 
 // checkCollidingSelf use to check colliding snakeSelf
@@ -165,29 +151,6 @@ func (s *snake) checkCollidingSelf() bool {
 	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
 }
 
-// adapt translate input byte to snake direction, This function needs to be called asynchronously
-func (s *snake) adapt(input chan byte) {
-	select {
-	case <-s.rateLimit:
-		switch <-input {
-		case 119:
-			s.turning(up)
-			break
-		case 115:
-			s.turning(down)
-			break
-		case 97:
-			s.turning(left)
-			break
-		case 100:
-			s.turning(right)
-			break
-		}
-	default:
-		fmt.Println("----")
-	}
-}
-
 func (s *snake) getCoords() []coordinate {
 	coords := []coordinate{s.head}
 	return append(coords, s.body...)
@@ -196,9 +159,13 @@ func (s *snake) getCoords() []coordinate {
 // 1：lock
 // 0：unlock
 func (s *snake) lockDirection() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.used = 1
 }
 func (s *snake) unLockDirection() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.used = 0
 }
 
