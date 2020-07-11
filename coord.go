@@ -34,24 +34,24 @@ func NewCoord(minX, maxX, minY, maxY int, ink byte, ban []Coord) Coord {
 	return Coord{x: x, y: y, ink: ink}
 }
 
-func (list CoordList) shift() Coord {
-	if len(list) == 0 {
+func (list *CoordList) shift() Coord {
+	if len(*list) == 0 {
 		return Coord{}
 	}
-	s := list[0]
-	list = list[1:]
+	s := []Coord(*list)[0]
+	*list = []Coord(*list)[1:]
 	return s
 }
 
-func (list CoordList) push(ele Coord) {
-	list = append(list, ele)
+func (list *CoordList) push(ele Coord) {
+	*list = append(*list, ele)
 }
 
-func (list CoordList) contain(ele Coord) bool {
-	if len(list) == 0 {
+func (list *CoordList) contain(ele Coord) bool {
+	if len(*list) == 0 {
 		return false
 	}
-	for _, item := range list {
+	for _, item := range *list {
 		if ele.x == item.x && ele.y == item.y {
 			return true
 		}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -31,6 +32,7 @@ func Test_coord_shift(t *testing.T) {
 func Test_coord_push(t *testing.T) {
 	coordList := genMockCoordList()
 	coordList.push(mockCoord2)
+	fmt.Println(coordList)
 	if (coordList[len(coordList)-1].x != 5 && coordList[len(coordList)-1].y != 5) || len(coordList) != 5 {
 		t.Error("coordList.push test error")
 	}
