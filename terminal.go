@@ -55,6 +55,24 @@ func watchInput() chan byte {
 	return input
 }
 
+func keyPressEvent() (chan os.Signal, chan byte) {
+	sig := make(chan os.Signal, 1)
+	go func() {
+		signal.Notify(sig, os.Interrupt)
+	}()
+
+	input := make(chan byte)
+	go func() {
+		b := make([]byte, 1)
+		for {
+			os.Stdin.Read(b)
+			input <- b[0]
+		}
+	}()
+
+	return sig, input
+}
+
 // exit call when snake dead or Interrupt
 func exit() {
 	recoverNonOutputAndNobuffer()

@@ -62,7 +62,7 @@ func (s *stage) draw(coords []coordinate) []byte {
 
 // cantorPairing generator an unique number with two number, Work as hash function
 // More info to see: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-func cantorPairing(a, b int) float64 {
+func cantorPairing(a, b int) int {
 	num := (a+b)*(a+b+1) + b
-	return float64(num) / 2
+	return (num / 2) * 10
 }
