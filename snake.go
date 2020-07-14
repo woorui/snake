@@ -1,176 +1,138 @@
 package main
 
-import (
-	"sync"
-	"time"
-)
+import "sync/atomic"
 
-var (
-	charSnakeBody = byte('*')
-)
-
-// direction is the direction of snake
-type direction int8
+// Direction is the direction of snake
+type Direction int8
 
 // enum direction
 const (
-	none  direction = 0
-	up    direction = 1
-	down  direction = -1
-	left  direction = 2
-	right direction = -2
+	None  Direction = 0
+	Up    Direction = 1
+	Down  Direction = -1
+	Left  Direction = 2
+	Right Direction = -2
 )
 
-// snake is the snake that can moving
-type snake struct {
-	mu       sync.Mutex
-	head     Coord
-	body     []coordinate
-	gradient time.Duration
-	direct   direction
-	used     int
+// DirectionLock lock snake direction enum
+type DirectionLock int32
+
+// enum DirectionLock
+const (
+	Locked   DirectionLock = 1
+	UnLocked DirectionLock = 0
+)
+
+// Snake is the snake that can moving
+type Snake struct {
+	head          Coord
+	body          CoordList
+	directionChan chan Direction
+	direction     Direction
+	directionLock int32
 }
 
-func newSnake() *snake {
-	c := Coord{
-		ink: charSnakeBody,
-		x:   2,
-		y:   2,
+// NewSnake return a snake
+func NewSnake(x, y int, ink byte, input chan byte) *Snake {
+	snake := &Snake{
+		head:          Coord{ink, x, y},
+		body:          CoordList{},
+		directionChan: make(chan Direction),
+		direction:     None,
+		directionLock: 0,
 	}
-	return &snake{
-		head:   c,
-		mu:     sync.Mutex{},
-		body:   []coordinate{},
-		direct: none,
-		used:   0,
+
+	go snake.transPressKetToDirection(input)
+	go snake.listenDirectionChanging()
+
+	return snake
+}
+
+// IsBiteSelf compute whether snake eat Itself.
+// if true. Game over
+func (snake *Snake) IsBiteSelf() bool {
+	return len(snake.body) >= 3 && snake.body.contain(snake.head)
+}
+
+func (snake *Snake) transPressKetToDirection(input chan byte) {
+	for i := range input {
+		switch i {
+		case 119:
+			snake.directionChan <- Up
+		case 115:
+			snake.directionChan <- Down
+		case 97:
+			snake.directionChan <- Left
+		case 100:
+			snake.directionChan <- Right
+		}
 	}
 }
 
-// move function make snake move.
-// The snake first appeared in the top-left corner.
-func (s *snake) move(stage *stage, food *food) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if food.coordinate.x == s.head.x && food.coordinate.y == s.head.y {
-		food.newLocate(1, stage.width-1, 1, stage.height-1, append(s.getCoords(), food.getCoords()...))
-		// just add one element(snake'head) to body head(not snake head)
-		s.body = coordPush(s.body, s.head)
-	}
+func (snake *Snake) listenDirectionChanging() {
+	for direction := range snake.directionChan {
+		if snake.isDirectionLocked() {
+			return
+		}
+		snake.lockDirection()
 
-	// change direction
-	if s.direct == none {
+		cur := snake.direction
+		if cur == direction || cur+direction == 0 {
+			return
+		}
+
+		// need lock maybe
+		snake.direction = direction
+	}
+}
+
+// Move make snake move. need synchronous execution
+func (snake *Snake) Move(maxHeight, maxWidht int) {
+	switch snake.direction {
+	case None:
 		return
-	} else if s.direct == up {
-		if s.head.y == 0 {
-			s.head.y = stage.height - 1
+	case Up:
+		if snake.head.y == 0 {
+			snake.head.y = maxHeight
 		} else {
-			s.head.y--
+			snake.head.y--
 		}
-	} else if s.direct == down {
-		if s.head.y == stage.height-1 {
-			s.head.y = 0
+	case Down:
+		if snake.head.y == maxHeight {
+			snake.head.y = 0
 		} else {
-			s.head.y++
+			snake.head.y++
 		}
-	} else if s.direct == left {
-		if s.head.x == 0 {
-			s.head.x = stage.width - 1
+	case Left:
+		if snake.head.x == 0 {
+			snake.head.x = maxWidht
 		} else {
-			s.head.x--
+			snake.head.x--
 		}
-	} else if s.direct == right {
-		if s.head.x == stage.width-1 {
-			s.head.x = 0
+	case Right:
+		if snake.head.x == maxWidht {
+			snake.head.x = 0
 		} else {
-			s.head.x++
+			snake.head.x++
 		}
 	}
-	// remove one element from body tail, add one element(snake'head) to body head(not snake head)
-	s.body = coordPush(coordShift(s.body), s.head)
+
+	snake.body.shift()
+	snake.body.push(snake.head)
 }
 
-func (s *snake) turning(direct direction) {
-	if s.isDirectionLocked() {
-		return
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	// Not change when negative or positive directiton
-	currentDirect := s.direct
-	s.lockDirection()
-	if currentDirect == direct || currentDirect+direct == 0 {
-		return
-	}
-	s.direct = direct
+func (snake *Snake) getCoords() CoordList {
+	coords := []Coord{snake.head}
+	return append(coords, snake.body...)
 }
 
-func (s *snake) turningInchannel(input chan byte) {
-	for {
-		select {
-		case i := <-input:
-			switch i {
-			case 119:
-				s.tryChangeDirection(up)
-				break
-			case 115:
-				s.tryChangeDirection(down)
-				break
-			case 97:
-				s.tryChangeDirection(left)
-				break
-			case 100:
-				s.tryChangeDirection(right)
-				break
-			}
-		default:
-		}
-	}
+func (snake *Snake) lockDirection() {
+	atomic.SwapInt32(&snake.directionLock, 1)
+}
+func (snake *Snake) unLockDirection() {
+	atomic.SwapInt32(&snake.directionLock, 0)
 }
 
-func (s *snake) tryChangeDirection(direct direction) {
-	if s.isDirectionLocked() {
-		return
-	}
-	s.lockDirection()
-	currentDirect := s.direct
-	if currentDirect == direct || currentDirect+direct == 0 {
-		return
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.direct = direct
-}
-
-// checkCollidingSelf use to check colliding snakeSelf
-func (s *snake) checkCollidingSelf() bool {
-	body := s.body
-	head := s.head
-	bodySize := len(body)
-
-	return bodySize >= 3 && coordContain(body[:bodySize-2], head)
-}
-
-func (s *snake) getCoords() CoordList {
-	var coords CoordList
-	coords.push(s.head)
-	coords := []coordinate{}
-	return append(coords, s.body...)
-}
-
-// 1：lock
-// 0：unlock
-func (s *snake) lockDirection() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.used = 1
-}
-func (s *snake) unLockDirection() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.used = 0
-}
-
-func (s *snake) isDirectionLocked() bool {
-	return s.used == 1
+func (snake *Snake) isDirectionLocked() bool {
+	return snake.directionLock == 1
 }

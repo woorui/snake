@@ -45,9 +45,9 @@ func NewGame(opts GameOpts) *Game {
 		input:  input,
 	}
 
-	game.food = NewFood(0, width-1, 0, height-1, newSnake().getCoords())
-	game.stage = NewStage(width, height)
 	game.snake = NewSnake(2, 2, CharSnakeBody, game.input)
+	game.food = NewFood(0, width-1, 0, height-1, game.snake.getCoords())
+	game.stage = NewStage(width, height)
 
 	return &game
 }
