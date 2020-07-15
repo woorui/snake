@@ -93,7 +93,7 @@ func (snake *Snake) listenDirectionChanging() {
 }
 
 // Move make snake move. need synchronous execution
-func (snake *Snake) Move(maxHeight, maxWidht int) {
+func (snake *Snake) Move(maxHeight, maxWidth int) {
 	switch snake.direction {
 	case None:
 		return
@@ -111,12 +111,12 @@ func (snake *Snake) Move(maxHeight, maxWidht int) {
 		}
 	case Left:
 		if snake.head.x == 0 {
-			snake.head.x = maxWidht
+			snake.head.x = maxWidth
 		} else {
 			snake.head.x--
 		}
 	case Right:
-		if snake.head.x == maxWidht {
+		if snake.head.x == maxWidth {
 			snake.head.x = 0
 		} else {
 			snake.head.x++
