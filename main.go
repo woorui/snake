@@ -5,7 +5,9 @@ import (
 )
 
 func main() {
+	game := NewGame(GameOpts{})
 
+	game.Run()
 }
 
 func broadcastTicker(d time.Duration) (chan bool, chan struct{}) {

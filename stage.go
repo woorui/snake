@@ -41,17 +41,6 @@ func NewStage(width, height int) *Stage {
 	}
 }
 
-func (stage *Stage) draw(coords []Coord) []byte {
-	m := make([]byte, len(stage.matrix))
-	copy(m, stage.matrix)
-	for _, c := range coords {
-		index := stage.mapping[cantorPairingFn(c.x, c.y)]
-		m[index] = c.ink
-	}
-
-	return m
-}
-
 // cantorPairing generator an unique number with two number.
 // It works as hash function
 // More info to see: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function

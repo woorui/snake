@@ -1,6 +1,8 @@
 package main
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+)
 
 // Direction is the direction of snake
 type Direction int8
@@ -42,29 +44,33 @@ func NewSnake(x, y int, ink byte, input chan byte) *Snake {
 		directionLock: 0,
 	}
 
-	go snake.transPressKetToDirection(input)
+	go snake.transPressKeyToDirection(input)
 	go snake.listenDirectionChanging()
 
 	return snake
 }
 
 // IsBiteSelf compute whether snake eat Itself.
-// if true. Game over
+// if true. Game over.
 func (snake *Snake) IsBiteSelf() bool {
 	return len(snake.body) >= 3 && snake.body.contain(snake.head)
 }
 
-func (snake *Snake) transPressKetToDirection(input chan byte) {
+func (snake *Snake) transPressKeyToDirection(input chan byte) {
 	for i := range input {
 		switch i {
 		case 119:
 			snake.directionChan <- Up
+			break
 		case 115:
 			snake.directionChan <- Down
+			break
 		case 97:
 			snake.directionChan <- Left
+			break
 		case 100:
 			snake.directionChan <- Right
+			break
 		}
 	}
 }
@@ -72,16 +78,16 @@ func (snake *Snake) transPressKetToDirection(input chan byte) {
 func (snake *Snake) listenDirectionChanging() {
 	for direction := range snake.directionChan {
 		if snake.isDirectionLocked() {
-			return
+			continue
 		}
 		snake.lockDirection()
 
 		cur := snake.direction
 		if cur == direction || cur+direction == 0 {
-			return
+			continue
 		}
 
-		// need lock maybe
+		// need lock
 		snake.direction = direction
 	}
 }

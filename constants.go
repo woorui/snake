@@ -23,9 +23,9 @@ const CharBreaker = byte('\n')
 // CharClear is used to clear screen when print it.
 var CharClear = []byte("\033[2J")
 
-const defaultGameHeight = 25
+const defaultGameHeight = 12
 
-const defaultGameWidth = 12
+const defaultGameWidth = 25
 
 // ErrPlatformDontSupport said that platform don't support snake
 var ErrPlatformDontSupport = errors.New("Your platform don't support snake")

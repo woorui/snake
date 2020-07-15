@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
-
-	"errors"
 )
 
 var (
@@ -86,7 +84,7 @@ func polyfillDashF(goos string) (string, error) {
 	case "linux":
 		return "-F", nil
 	default:
-		return "", errors.New("Your platform don't support snake")
+		return "", ErrPlatformDontSupport
 	}
 }
 
@@ -94,17 +92,17 @@ func nonOutputAndNobuffer() error {
 	goos := runtime.GOOS
 	dashF, err := polyfillDashF(goos)
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	// no buffering
 	err = exec.Command("/bin/stty", dashF, "/dev/tty", "cbreak", "min", "1").Run()
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	// no visible output
 	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-echo").Run()
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	return nil
 }
