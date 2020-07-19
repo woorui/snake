@@ -9,14 +9,14 @@ import (
 
 // Game contains all resources needed by the game
 type Game struct {
-	Width  int
-	Height int
-	snake  *Snake
-	stage  *Stage
-	food   *Food
-	screen *bufio.Writer
-	sig    chan os.Signal // listen ctrl+c
-	input  chan byte      // listen keyboard press
+	Width       int
+	Height      int
+	snake       *Snake
+	stage       *Stage
+	food        *Food
+	screen      *bufio.Writer
+	sig         chan os.Signal // listen ctrl+c
+	directionCh chan Direction // listen keyboard press
 }
 
 // GameOpts is used to init the game
@@ -35,17 +35,17 @@ func NewGame(opts GameOpts) *Game {
 	if opts.Height != 0 {
 		height = opts.Height
 	}
-	sig, input := keyPressEvent()
+	sig, directionCh := keyPressEvent()
 
 	game := Game{
-		Width:  width,
-		Height: height,
-		screen: bufio.NewWriter(os.Stdout),
-		sig:    sig,
-		input:  input,
+		Width:       width,
+		Height:      height,
+		screen:      bufio.NewWriter(os.Stdout),
+		sig:         sig,
+		directionCh: directionCh,
 	}
 
-	game.snake = NewSnake(2, 2, CharSnakeBody, game.input)
+	game.snake = NewSnake(2, 2, CharSnakeBody)
 	game.food = NewFood(0, width-2, 0, height-2, game.snake.getCoords())
 	game.stage = NewStage(width, height)
 
@@ -83,9 +83,9 @@ func (game *Game) score() int {
 
 // Run run the game
 func (game *Game) Run() {
-	ticker := time.NewTicker(2000 * time.Millisecond)
 	nonOutputAndNobuffer()
 
+	ticker := time.NewTicker(2000 * time.Millisecond)
 	for {
 		select {
 		case <-ticker.C:
@@ -93,7 +93,11 @@ func (game *Game) Run() {
 				fmt.Println("Game over, Your score is ", game.score())
 			}
 			game.snake.Move(game.Height, game.Width)
-			// game.draw()
+			game.draw()
+			continue
+		case direction := <-game.directionCh:
+			game.snake.changeDirection(direction)
+			continue
 		case <-game.sig:
 			ticker.Stop()
 			recoverNonOutputAndNobuffer()

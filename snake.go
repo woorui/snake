@@ -35,17 +35,13 @@ type Snake struct {
 }
 
 // NewSnake return a snake
-func NewSnake(x, y int, ink byte, input chan byte) *Snake {
+func NewSnake(x, y int, ink byte) *Snake {
 	snake := &Snake{
 		head:          Coord{ink, x, y},
 		body:          CoordList{},
-		directionChan: make(chan Direction),
 		direction:     None,
 		directionLock: 0,
 	}
-
-	go snake.transPressKeyToDirection(input)
-	go snake.listenDirectionChanging()
 
 	return snake
 }
@@ -56,40 +52,18 @@ func (snake *Snake) IsBiteSelf() bool {
 	return len(snake.body) >= 3 && snake.body.contain(snake.head)
 }
 
-func (snake *Snake) transPressKeyToDirection(input chan byte) {
-	for i := range input {
-		switch i {
-		case 119:
-			snake.directionChan <- Up
-			break
-		case 115:
-			snake.directionChan <- Down
-			break
-		case 97:
-			snake.directionChan <- Left
-			break
-		case 100:
-			snake.directionChan <- Right
-			break
-		}
+func (snake *Snake) changeDirection(direction Direction) {
+	if snake.isDirectionLocked() {
+		return
 	}
-}
+	snake.lockDirection()
 
-func (snake *Snake) listenDirectionChanging() {
-	for direction := range snake.directionChan {
-		if snake.isDirectionLocked() {
-			continue
-		}
-		snake.lockDirection()
-
-		cur := snake.direction
-		if cur == direction || cur+direction == 0 {
-			continue
-		}
-
-		// need lock
-		snake.direction = direction
+	cur := snake.direction
+	if cur == direction || cur+direction == 0 {
+		return
 	}
+
+	snake.direction = direction
 }
 
 // Move make snake move. need synchronous execution
