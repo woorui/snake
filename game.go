@@ -89,11 +89,12 @@ func (game *Game) Run() {
 	for {
 		select {
 		case <-ticker.C:
+			game.snake.unLockDirection()
 			if game.snake.IsBiteSelf() || game.isFull() {
 				fmt.Println("Game over, Your score is ", game.score())
 			}
 			game.snake.Move(game.Height, game.Width)
-			game.draw()
+			// game.draw()
 			continue
 		case direction := <-game.directionCh:
 			game.snake.changeDirection(direction)

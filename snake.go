@@ -59,6 +59,7 @@ func (snake *Snake) changeDirection(direction Direction) {
 	snake.lockDirection()
 
 	cur := snake.direction
+
 	if cur == direction || cur+direction == 0 {
 		return
 	}
