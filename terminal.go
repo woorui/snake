@@ -85,12 +85,6 @@ func keyPressEvent() (chan os.Signal, chan Direction) {
 	return sig, directionChan
 }
 
-// exit call when snake dead or Interrupt
-func exit() {
-	recoverNonOutputAndNobuffer()
-	os.Exit(0)
-}
-
 func polyfillDashF(goos string) (string, error) {
 	switch goos {
 	case "darwin":
@@ -102,7 +96,7 @@ func polyfillDashF(goos string) (string, error) {
 	}
 }
 
-func nonOutputAndNobuffer() error {
+func nonOutputNobuffer() error {
 	goos := runtime.GOOS
 	dashF, err := polyfillDashF(goos)
 	if err != nil {
@@ -121,7 +115,7 @@ func nonOutputAndNobuffer() error {
 	return nil
 }
 
-func recoverNonOutputAndNobuffer() error {
+func recoverNonOutputNobuffer() error {
 	goos := runtime.GOOS
 	dashF, err := polyfillDashF(goos)
 	if err != nil {

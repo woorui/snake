@@ -14,6 +14,7 @@ type Game struct {
 	snake       *Snake
 	stage       *Stage
 	food        *Food
+	debug       bool
 	screen      *bufio.Writer
 	sig         chan os.Signal // listen ctrl+c
 	directionCh chan Direction // listen keyboard press
@@ -23,6 +24,7 @@ type Game struct {
 type GameOpts struct {
 	Width  int
 	Height int
+	Debug  bool
 }
 
 // NewGame returns initialized game
@@ -40,6 +42,7 @@ func NewGame(opts GameOpts) *Game {
 	game := Game{
 		Width:       width,
 		Height:      height,
+		debug:       true, // opts.Debug,
 		screen:      bufio.NewWriter(os.Stdout),
 		sig:         sig,
 		directionCh: directionCh,
@@ -58,6 +61,12 @@ func (game *Game) clear() {
 }
 
 func (game *Game) stuff() []byte {
+	if game.food.coord.x == game.snake.head.x && game.food.coord.y == game.snake.head.y {
+		game.food.newLocate(1, game.stage.width-1, 1, game.stage.height-1, game.snake.getCoords().concat(game.food.getCoordList()))
+		game.snake.body.push(game.snake.head)
+	}
+	game.snake.Move(game.Height, game.Width)
+
 	b := make([]byte, len(game.stage.matrix))
 	copy(b, game.stage.matrix)
 	coords := game.snake.getCoords().concat(game.food.getCoordList())
@@ -69,6 +78,12 @@ func (game *Game) stuff() []byte {
 }
 
 func (game *Game) draw() {
+	if game.debug {
+		game.stuff()
+		game.snake.getCoords().print("snake")
+		game.food.getCoordList().print("food")
+		return
+	}
 	game.screen.Write(game.stuff())
 	game.screen.Flush()
 }
@@ -83,26 +98,30 @@ func (game *Game) score() int {
 
 // Run run the game
 func (game *Game) Run() {
-	nonOutputAndNobuffer()
+	nonOutputNobuffer()
 
-	ticker := time.NewTicker(2000 * time.Millisecond)
+	ticker := time.NewTicker(1000 * time.Millisecond)
+
+	postcondition := func() {
+		ticker.Stop()
+		recoverNonOutputNobuffer()
+		os.Exit(0)
+	}
+
 	for {
 		select {
 		case <-ticker.C:
 			game.snake.unLockDirection()
 			if game.snake.IsBiteSelf() || game.isFull() {
 				fmt.Println("Game over, Your score is ", game.score())
+				postcondition()
 			}
-			game.snake.Move(game.Height, game.Width)
-			// game.draw()
-			continue
+			game.clear()
+			game.draw()
 		case direction := <-game.directionCh:
 			game.snake.changeDirection(direction)
-			continue
 		case <-game.sig:
-			ticker.Stop()
-			recoverNonOutputAndNobuffer()
-			os.Exit(0)
+			postcondition()
 		}
 	}
 }

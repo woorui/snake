@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -62,6 +63,14 @@ func (list *CoordList) contain(ele Coord) bool {
 		}
 	}
 	return false
+}
+
+func (list CoordList) print(source string) {
+	s := ""
+	for _, v := range list {
+		s += fmt.Sprintf("[%d,%d]", v.x, v.y)
+	}
+	fmt.Printf("%s\t%s\n", source, s)
 }
 
 func (list CoordList) concat(others CoordList) CoordList {
