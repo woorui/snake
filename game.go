@@ -42,7 +42,7 @@ func NewGame(opts GameOpts) *Game {
 	game := Game{
 		Width:       width,
 		Height:      height,
-		debug:       true, // opts.Debug,
+		debug:       opts.Debug,
 		screen:      bufio.NewWriter(os.Stdout),
 		sig:         sig,
 		directionCh: directionCh,
@@ -61,7 +61,7 @@ func (game *Game) clear() {
 }
 
 func (game *Game) frame() []byte {
-	game.snake.Move(game.Height, game.Width)
+	game.snake.Move(game.Height-1, game.Width-1)
 	if game.food.coord.x == game.snake.head.x && game.food.coord.y == game.snake.head.y {
 		game.food.newLocate(
 			1, game.stage.width-1,
@@ -76,7 +76,6 @@ func (game *Game) frame() []byte {
 	coords := game.snake.getCoords().concat(game.food.getCoordList())
 	for _, c := range coords {
 		index := game.stage.mapping[cantorPairingFn(c.x, c.y)]
-		fmt.Println(c.x, c.y, string(c.ink), string(b[index]), index, cantorPairingFn(c.x, c.y))
 		b[index] = c.ink
 	}
 	return append(b, CharBreaker)
@@ -87,10 +86,8 @@ func (game *Game) draw() {
 	game.screen.Write(game.frame())
 	game.screen.Flush()
 	if game.debug {
-		game.frame()
 		game.snake.getCoords().print("snake")
 		game.food.getCoordList().print("food")
-		// return
 	}
 }
 
