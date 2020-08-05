@@ -7,17 +7,12 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
-
-	"errors"
 )
 
 var (
 	charClear     = []byte("\033[2J") // byte from string "\033[2J"
 	charLineBreak = byte('\n')        // byte from string "\n"
 )
-
-// ErrPlatformDontSupport said that platform don't support snake
-var ErrPlatformDontSupport = errors.New("Your platform don't support snake")
 
 // screenClear make terminal screen clear, The effect is the same as command "clear"
 func screenClear(screen *bufio.Writer) (int, error) {
@@ -58,10 +53,36 @@ func watchInput() chan byte {
 	return input
 }
 
-// exit call when snake dead or Interrupt
-func exit() {
-	recoverNonOutputAndNobuffer()
-	os.Exit(0)
+func keyPressEvent() (chan os.Signal, chan Direction) {
+	sig := make(chan os.Signal, 1)
+	go func() {
+		signal.Notify(sig, os.Interrupt)
+	}()
+
+	directionChan := make(chan Direction)
+	go func() {
+		bytes := make([]byte, 1)
+		for {
+			os.Stdin.Read(bytes)
+			b := bytes[0]
+			switch b {
+			case 119:
+				directionChan <- Up
+				continue
+			case 115:
+				directionChan <- Down
+				continue
+			case 97:
+				directionChan <- Left
+				continue
+			case 100:
+				directionChan <- Right
+				continue
+			}
+		}
+	}()
+
+	return sig, directionChan
 }
 
 func polyfillDashF(goos string) (string, error) {
@@ -71,30 +92,30 @@ func polyfillDashF(goos string) (string, error) {
 	case "linux":
 		return "-F", nil
 	default:
-		return "", errors.New("Your platform don't support snake")
+		return "", ErrPlatformDontSupport
 	}
 }
 
-func nonOutputAndNobuffer() error {
+func nonOutputNobuffer() error {
 	goos := runtime.GOOS
 	dashF, err := polyfillDashF(goos)
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	// no buffering
 	err = exec.Command("/bin/stty", dashF, "/dev/tty", "cbreak", "min", "1").Run()
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	// no visible output
 	err = exec.Command("/bin/stty", dashF, "/dev/tty", "-echo").Run()
 	if err != nil {
-		return errors.New("Your platform don't support snake")
+		return ErrPlatformDontSupport
 	}
 	return nil
 }
 
-func recoverNonOutputAndNobuffer() error {
+func recoverNonOutputNobuffer() error {
 	goos := runtime.GOOS
 	dashF, err := polyfillDashF(goos)
 	if err != nil {
