@@ -30,11 +30,11 @@ type GameOpts struct {
 // NewGame returns initialized game
 func NewGame(opts GameOpts) *Game {
 	width := defaultGameWidth
-	if opts.Width != 0 {
+	if opts.Width > 2 {
 		width = opts.Width
 	}
 	height := defaultGameHeight
-	if opts.Height != 0 {
+	if opts.Height > 2 {
 		height = opts.Height
 	}
 	sig, directionCh := keyPressEvent()
@@ -60,49 +60,55 @@ func (game *Game) clear() {
 	game.screen.Flush()
 }
 
-func (game *Game) stuff() []byte {
+func (game *Game) frame() []byte {
+	game.snake.Move(game.Height, game.Width)
 	if game.food.coord.x == game.snake.head.x && game.food.coord.y == game.snake.head.y {
-		game.food.newLocate(1, game.stage.width-1, 1, game.stage.height-1, game.snake.getCoords().concat(game.food.getCoordList()))
+		game.food.newLocate(
+			1, game.stage.width-1,
+			1, game.stage.height-1,
+			game.snake.getCoords().concat(game.food.getCoordList()),
+		)
 		game.snake.body.push(game.snake.head)
 	}
-	game.snake.Move(game.Height, game.Width)
 
 	b := make([]byte, len(game.stage.matrix))
 	copy(b, game.stage.matrix)
 	coords := game.snake.getCoords().concat(game.food.getCoordList())
 	for _, c := range coords {
 		index := game.stage.mapping[cantorPairingFn(c.x, c.y)]
+		fmt.Println(c.x, c.y, string(c.ink), string(b[index]), index, cantorPairingFn(c.x, c.y))
 		b[index] = c.ink
 	}
 	return append(b, CharBreaker)
 }
 
 func (game *Game) draw() {
+	game.clear()
+	game.screen.Write(game.frame())
+	game.screen.Flush()
 	if game.debug {
-		game.stuff()
+		game.frame()
 		game.snake.getCoords().print("snake")
 		game.food.getCoordList().print("food")
-		return
+		// return
 	}
-	game.screen.Write(game.stuff())
-	game.screen.Flush()
 }
 
 func (game *Game) isFull() bool {
-	return len(game.snake.body) >= (game.stage.width-2)*(game.stage.height-2)
+	return len(*game.snake.body) >= (game.stage.width-2)*(game.stage.height-2)
 }
 
 func (game *Game) score() int {
-	return len(game.snake.body) - 1
+	return len(*game.snake.body) - 1
 }
 
 // Run run the game
 func (game *Game) Run() {
 	nonOutputNobuffer()
 
-	ticker := time.NewTicker(1000 * time.Millisecond)
+	ticker := time.NewTicker(280 * time.Millisecond)
 
-	postcondition := func() {
+	postCondition := func() {
 		ticker.Stop()
 		recoverNonOutputNobuffer()
 		os.Exit(0)
@@ -114,14 +120,13 @@ func (game *Game) Run() {
 			game.snake.unLockDirection()
 			if game.snake.IsBiteSelf() || game.isFull() {
 				fmt.Println("Game over, Your score is ", game.score())
-				postcondition()
+				postCondition()
 			}
-			game.clear()
 			game.draw()
 		case direction := <-game.directionCh:
 			game.snake.changeDirection(direction)
 		case <-game.sig:
-			postcondition()
+			postCondition()
 		}
 	}
 }

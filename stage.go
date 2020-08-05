@@ -5,15 +5,15 @@ type Stage struct {
 	width   int
 	height  int
 	matrix  []byte
-	mapping map[int]int // map coord to matrix index
+	mapping map[float64]int // map coord to matrix index
 }
 
-// NewStage return a new stage
+// NewStage return a stage
 func NewStage(width, height int) *Stage {
 	if width < 3 || height < 3 {
 		width, height = defaultGameWidth, defaultGameHeight
 	}
-	mapping := make(map[int]int)
+	mapping := make(map[float64]int)
 	var matrix []byte
 	index := 0
 	for y := 0; y < height; y++ {
@@ -44,7 +44,7 @@ func NewStage(width, height int) *Stage {
 // cantorPairing generator an unique number with two number.
 // It works as hash function
 // More info to see: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-func cantorPairingFn(a, b int) int {
+func cantorPairingFn(a, b int) float64 {
 	num := (a+b)*(a+b+1) + b
-	return (num / 2) * 10
+	return float64(num) / 2
 }

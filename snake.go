@@ -28,7 +28,7 @@ const (
 // Snake is the snake that can moving
 type Snake struct {
 	head          Coord
-	body          CoordList
+	body          *CoordList
 	directionChan chan Direction
 	direction     Direction
 	directionLock int32
@@ -38,7 +38,7 @@ type Snake struct {
 func NewSnake(x, y int, ink byte) *Snake {
 	snake := &Snake{
 		head:          Coord{ink, x, y},
-		body:          CoordList{},
+		body:          &CoordList{},
 		direction:     None,
 		directionLock: 0,
 	}
@@ -49,7 +49,12 @@ func NewSnake(x, y int, ink byte) *Snake {
 // IsBiteSelf compute whether snake eat Itself.
 // if true. Game over.
 func (snake *Snake) IsBiteSelf() bool {
-	return len(snake.body) >= 3 && snake.body.contain(snake.head)
+	size := snake.body.size()
+	if size >= 3 {
+		realBody := CoordList([]Coord(*snake.body)[:snake.body.size()-2])
+		return realBody.contain(snake.head)
+	}
+	return false
 }
 
 func (snake *Snake) changeDirection(direction Direction) {
@@ -104,7 +109,7 @@ func (snake *Snake) Move(maxHeight, maxWidth int) {
 
 func (snake *Snake) getCoords() CoordList {
 	coords := []Coord{snake.head}
-	return append(coords, snake.body...)
+	return append(coords, *snake.body...)
 }
 
 func (snake *Snake) lockDirection() {

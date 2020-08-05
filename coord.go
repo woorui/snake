@@ -65,16 +65,20 @@ func (list *CoordList) contain(ele Coord) bool {
 	return false
 }
 
-func (list CoordList) print(source string) {
+func (list CoordList) print(prefix string) {
 	s := ""
 	for _, v := range list {
 		s += fmt.Sprintf("[%d,%d]", v.x, v.y)
 	}
-	fmt.Printf("%s\t%s\n", source, s)
+	fmt.Printf("%s\t%s\n", prefix, s)
 }
 
 func (list CoordList) concat(others CoordList) CoordList {
 	return append(list, others...)
+}
+
+func (list *CoordList) size() int {
+	return len(*list)
 }
 
 // randRange returns an int >= min, < max
