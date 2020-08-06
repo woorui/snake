@@ -6,11 +6,15 @@ The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (bu
 
 ## Running in the project directory without building, just for testing
 
-> go run -race $(ls -1 *.go | grep -v _test.go)
+```bash
+go run -race $(ls -1 *.go | grep -v _test.go)
+```
 
-## Installation
+## Install
 
-> go get -u github.com/woorui/snake
+```bash
+go get -u github.com/woorui/snake
+```
 
 ## Flag
 
@@ -26,11 +30,15 @@ snake --help
 
 ## Run
 
-> snake
+```bash
+snake
+```
 
 ## Run with docker
 
-> docker run -it --rm qq1009479218/snake
+```bash
+docker run -it --rm qq1009479218/snake
+```
 
 ![Show the running result](snake.gif)
 
