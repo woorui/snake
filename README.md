@@ -40,6 +40,6 @@ snake
 docker run -it --rm qq1009479218/snake
 ```
 
-![Show the running result](snake.gif)
+![Show the running result](snake_run.gif)
 
 The test is being completed...
