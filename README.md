@@ -6,17 +6,29 @@ The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (bu
 
 ## Running in the project directory without building, just for testing
 
-> go run $(ls -1 *.go | grep -v _test.go)
+> go run -race $(ls -1 *.go | grep -v _test.go)
 
 ## Installation
 
 > go get -u github.com/woorui/snake
 
-## Run the game snake if you has setup the go environment variable
+## Flag
+
+```bash
+snake --help
+  -debug
+        debug mode.
+  -height int
+        Game stage height. (default 12)
+  -width int
+        Game stage width. (default 25)
+```
+
+## Run
 
 > snake
 
-## Running in docker (It's don't need go env but docker installed)
+## Run with docker
 
 > docker run -it --rm qq1009479218/snake
 

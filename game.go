@@ -49,7 +49,10 @@ func NewGame(opts GameOpts) *Game {
 	}
 
 	game.snake = NewSnake(2, 2, CharSnakeBody)
-	game.food = NewFood(0, width-2, 0, height-2, game.snake.getCoords())
+
+	trimWidth := width - 2
+	trimHeight := height - 2
+	game.food = NewFood(0, trimWidth, 0, trimHeight, game.snake.getCoords())
 	game.stage = NewStage(width, height)
 
 	return &game
@@ -103,7 +106,7 @@ func (game *Game) score() int {
 func (game *Game) Run() {
 	nonOutputNobuffer()
 
-	ticker := time.NewTicker(280 * time.Millisecond)
+	ticker := time.NewTicker(220 * time.Millisecond)
 
 	postCondition := func() {
 		ticker.Stop()

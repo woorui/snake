@@ -44,6 +44,15 @@ func Test_coord_contain(t *testing.T) {
 	c2 := coordList.contain(mockCoord2)
 
 	if c1 != true || c2 != false {
-		t.Error("coordContain test error")
+		t.Error("coord.contain test error")
+	}
+}
+
+func Test_coord_size(t *testing.T) {
+	coordList := genMockCoordList()
+	size := coordList.size()
+
+	if size != 4 {
+		t.Error("coord.size test error")
 	}
 }
