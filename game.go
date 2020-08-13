@@ -52,7 +52,7 @@ func NewGame(opts GameOpts) *Game {
 
 	trimWidth := width - 2
 	trimHeight := height - 2
-	game.food = NewFood(0, trimWidth, 0, trimHeight, game.snake.getCoords())
+	game.food = NewFood(1, trimWidth, 1, trimHeight, game.snake.getCoords())
 	game.stage = NewStage(width, height)
 
 	return &game
