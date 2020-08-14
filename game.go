@@ -85,12 +85,14 @@ func (game *Game) frame() []byte {
 }
 
 func (game *Game) draw() {
-	game.clear()
-	game.screen.Write(game.frame())
-	game.screen.Flush()
+	frame := game.frame()
 	if game.debug {
 		game.snake.getCoords().print("snake")
 		game.food.getCoordList().print("food")
+	} else {
+		game.clear()
+		game.screen.Write(frame)
+		game.screen.Flush()
 	}
 }
 
@@ -106,7 +108,7 @@ func (game *Game) score() int {
 func (game *Game) Run() {
 	nonOutputNobuffer()
 
-	ticker := time.NewTicker(220 * time.Millisecond)
+	ticker := time.NewTicker(defaultSpeed)
 
 	postCondition := func() {
 		ticker.Stop()
@@ -117,7 +119,7 @@ func (game *Game) Run() {
 	for {
 		select {
 		case <-ticker.C:
-			game.snake.unLockDirection()
+			game.snake.directionController.reset()
 			if game.snake.IsBiteSelf() || game.isFull() {
 				fmt.Println("Game over, Your score is ", game.score())
 				postCondition()

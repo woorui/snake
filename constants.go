@@ -1,6 +1,9 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 // CharSnakeBody is used to render snake's body.
 const CharSnakeBody = byte('*')
@@ -29,3 +32,5 @@ const defaultGameWidth = 25
 
 // ErrPlatformDontSupport said that platform don't support snake
 var ErrPlatformDontSupport = errors.New("Your platform don't support snake")
+
+var defaultSpeed = 220 * time.Millisecond

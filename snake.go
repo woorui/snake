@@ -1,9 +1,5 @@
 package main
 
-import (
-	"sync/atomic"
-)
-
 // Direction is the direction of snake
 type Direction int8
 
@@ -16,31 +12,47 @@ const (
 	Right Direction = -2
 )
 
-// DirectionLock lock snake direction enum
-type DirectionLock int32
-
-// enum DirectionLock
-const (
-	Locked   DirectionLock = 1
-	UnLocked DirectionLock = 0
-)
-
 // Snake is the snake that can moving
 type Snake struct {
-	head          Coord
-	body          *CoordList
-	directionChan chan Direction
-	direction     Direction
-	directionLock int32
+	head                Coord
+	body                *CoordList
+	directionController *directionController
+}
+
+type directionController struct {
+	cur  Direction
+	pool []Direction
+}
+
+func (dc *directionController) changeDirection(direction Direction) {
+	last := None
+	if len(dc.pool) != 0 {
+		last = dc.pool[len(dc.pool)-1]
+	}
+	if last == direction || last+direction == 0 {
+		return
+	}
+	dc.pool = append(dc.pool, direction)
+}
+
+func (dc *directionController) reset() {
+	pool := dc.pool
+	dc.pool = []Direction{}
+	for i := range pool {
+		last := pool[len(pool)-i-1]
+		if last != dc.cur && last+dc.cur != 0 {
+			dc.cur = last
+			return
+		}
+	}
 }
 
 // NewSnake return a snake
 func NewSnake(x, y int, ink byte) *Snake {
 	snake := &Snake{
-		head:          Coord{ink, x, y},
-		body:          &CoordList{},
-		direction:     None,
-		directionLock: 0,
+		head:                Coord{ink, x, y},
+		body:                &CoordList{},
+		directionController: &directionController{},
 	}
 
 	return snake
@@ -58,23 +70,12 @@ func (snake *Snake) IsBiteSelf() bool {
 }
 
 func (snake *Snake) changeDirection(direction Direction) {
-	if snake.isDirectionLocked() {
-		return
-	}
-	snake.lockDirection()
-
-	cur := snake.direction
-
-	if cur == direction || cur+direction == 0 {
-		return
-	}
-
-	snake.direction = direction
+	snake.directionController.changeDirection(direction)
 }
 
 // Move make snake move. need synchronous execution
 func (snake *Snake) Move(maxHeight, maxWidth int) {
-	switch snake.direction {
+	switch snake.directionController.cur {
 	case None:
 		return
 	case Up:
@@ -110,15 +111,4 @@ func (snake *Snake) Move(maxHeight, maxWidth int) {
 func (snake *Snake) getCoords() CoordList {
 	coords := []Coord{snake.head}
 	return append(coords, *snake.body...)
-}
-
-func (snake *Snake) lockDirection() {
-	atomic.SwapInt32(&snake.directionLock, 1)
-}
-func (snake *Snake) unLockDirection() {
-	atomic.SwapInt32(&snake.directionLock, 0)
-}
-
-func (snake *Snake) isDirectionLocked() bool {
-	return snake.directionLock == 1
 }
