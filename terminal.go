@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -27,30 +26,6 @@ func screenWrite(screen *bufio.Writer, b []byte) (int, error) {
 // screenFlush write content from buffer to terminal screen
 func screenFlush(screen *bufio.Writer) error {
 	return screen.Flush()
-}
-
-// watchInterrupt watch program is interrupted and exec fn method
-func watchInterrupt(fn func()) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for sig := range c {
-			fmt.Println(sig)
-			fn()
-		}
-	}()
-}
-
-func watchInput() chan byte {
-	input := make(chan byte)
-	go func() {
-		b := make([]byte, 1)
-		for {
-			os.Stdin.Read(b)
-			input <- b[0]
-		}
-	}()
-	return input
 }
 
 func keyPressEvent() (chan os.Signal, chan Direction) {

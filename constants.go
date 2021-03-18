@@ -31,6 +31,6 @@ const defaultGameHeight = 12
 const defaultGameWidth = 25
 
 // ErrPlatformDontSupport said that platform don't support snake
-var ErrPlatformDontSupport = errors.New("Your platform don't support snake")
+var ErrPlatformDontSupport = errors.New("your platform don't support snake")
 
 var defaultSpeed = 220 * time.Millisecond

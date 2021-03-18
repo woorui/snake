@@ -119,7 +119,7 @@ func (game *Game) Run() {
 	for {
 		select {
 		case <-ticker.C:
-			game.snake.directionController.reset()
+			game.snake.apply()
 			if game.snake.IsBiteSelf() || game.isFull() {
 				fmt.Println("Game over, Your score is ", game.score())
 				postCondition()

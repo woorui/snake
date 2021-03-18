@@ -35,7 +35,7 @@ func (dc *directionController) changeDirection(direction Direction) {
 	dc.pool = append(dc.pool, direction)
 }
 
-func (dc *directionController) reset() {
+func (dc *directionController) apply() {
 	pool := dc.pool
 	dc.pool = []Direction{}
 	for i := range pool {
@@ -67,6 +67,10 @@ func (snake *Snake) IsBiteSelf() bool {
 		return realBody.contain(snake.head)
 	}
 	return false
+}
+
+func (snake *Snake) apply() {
+	snake.directionController.apply()
 }
 
 func (snake *Snake) changeDirection(direction Direction) {
