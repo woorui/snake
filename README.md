@@ -34,12 +34,8 @@ snake --help
 snake
 ```
 
-## Run with docker
-
-```bash
-docker run -it --rm qq1009479218/snake
-```
-
 ![Show the running result](snake_run.gif)
 
-The test is being completed...
+## Run with docker
+
+see here: https://github.com/woorui/snake/pkgs/container/snake
