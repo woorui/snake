@@ -12,107 +12,163 @@ const (
 	Right Direction = -2
 )
 
-// Snake is the snake that can moving
-type Snake struct {
-	head                Coord
-	body                *CoordList
-	directionController *directionController
-}
-
-type directionController struct {
-	cur  Direction
-	pool []Direction
-}
-
-func (dc *directionController) changeDirection(direction Direction) {
-	last := None
-	if len(dc.pool) != 0 {
-		last = dc.pool[len(dc.pool)-1]
+func (d Direction) String() string {
+	switch d {
+	case None:
+		return "None"
+	case Up:
+		return "Up"
+	case Down:
+		return "Down"
+	case Left:
+		return "Left"
+	case Right:
+		return "Right"
 	}
-	if last == direction || last+direction == 0 {
+	return "Unknown"
+}
+
+// Controller controls snake direction,
+// some direction changing should be ignored in one frame.
+type Controller interface {
+	Get() Direction
+	Change(Direction)
+}
+
+type defaultController struct {
+	last     Direction
+	accepted []Direction
+}
+
+func (dc *defaultController) Change(dt Direction) {
+	last := dc.last
+	if len(dc.accepted) != 0 {
+		last = dc.accepted[len(dc.accepted)-1]
+	}
+	// same direction
+	if last == dt {
 		return
 	}
-	dc.pool = append(dc.pool, direction)
+	// negative direction
+	if last+dt == 0 {
+		if len(dc.accepted) != 2 {
+			dc.accepted = append(dc.accepted, dt)
+		}
+		return
+	}
+	dc.accepted = append(dc.accepted, dt)
 }
 
-func (dc *directionController) apply() {
-	pool := dc.pool
-	dc.pool = []Direction{}
-	for i := range pool {
-		last := pool[len(pool)-i-1]
-		if last != dc.cur && last+dc.cur != 0 {
-			dc.cur = last
-			return
+func (dc *defaultController) Get() Direction {
+	last := dc.last
+	if len(dc.accepted) == 0 {
+		return last
+	}
+	var (
+		size = len(dc.accepted)
+		next = None
+		cur  = last
+	)
+	cur = dc.accepted[size-1]
+	if size >= 2 {
+		var (
+			first  = dc.accepted[size-2]
+			second = dc.accepted[size-1]
+		)
+
+		// turn back or change track
+		if last+second == 0 || last == second {
+			cur = first
+			next = second
 		}
 	}
+
+	if next != None {
+		dc.accepted = dc.accepted[0:1]
+		dc.accepted[0] = next
+	} else {
+		dc.accepted = dc.accepted[:0]
+	}
+
+	if last+cur == 0 {
+		cur = last
+	} else {
+		dc.last = cur // set last
+	}
+
+	return cur
 }
 
-// NewSnake return a snake
-func NewSnake(x, y int, ink byte) *Snake {
+// Snake is the snake that can moving
+type Snake struct {
+	head       Coordinate
+	body       []Coordinate
+	controller Controller
+}
+
+// NewSnake return a snake.
+//
+// x, y is the initial position.
+func NewSnake(x, y int, ink byte, controller Controller) *Snake {
 	snake := &Snake{
-		head:                Coord{ink, x, y},
-		body:                &CoordList{},
-		directionController: &directionController{},
+		head:       Coordinate{ink, x, y},
+		body:       []Coordinate{},
+		controller: controller,
 	}
 
 	return snake
 }
 
-// IsBiteSelf compute whether snake eat Itself.
-// if true. Game over.
-func (snake *Snake) IsBiteSelf() bool {
-	size := snake.body.size()
-	if size >= 3 {
-		realBody := CoordList([]Coord(*snake.body)[:snake.body.size()-2])
-		return realBody.contain(snake.head)
+// IsBumpSelf compute whether snake bumps itself.
+// if true. There should game over.
+func (snake *Snake) IsBumpSelf() bool {
+	size := len(snake.body)
+
+	// snake can not bumps its neck.
+	if size < 3 {
+		return false
 	}
-	return false
+	bumpable := snake.body[:size-2]
+
+	return Includes(bumpable, snake.head)
 }
 
-func (snake *Snake) apply() {
-	snake.directionController.apply()
-}
-
-func (snake *Snake) changeDirection(direction Direction) {
-	snake.directionController.changeDirection(direction)
-}
+func (snake *Snake) ChangeDirection(direction Direction) { snake.controller.Change(direction) }
 
 // Move make snake move. need synchronous execution
-func (snake *Snake) Move(maxHeight, maxWidth int) {
-	switch snake.directionController.cur {
+func (snake *Snake) Move(minX, maxX, minY, maxY int) {
+	switch snake.controller.Get() {
 	case None:
 		return
 	case Up:
-		if snake.head.y == 0 {
-			snake.head.y = maxHeight
+		if snake.head.y == minY {
+			snake.head.y = maxY
 		} else {
 			snake.head.y--
 		}
 	case Down:
-		if snake.head.y == maxHeight {
-			snake.head.y = 0
+		if snake.head.y == maxY {
+			snake.head.y = minY
 		} else {
 			snake.head.y++
 		}
 	case Left:
-		if snake.head.x == 0 {
-			snake.head.x = maxWidth
+		if snake.head.x == minX {
+			snake.head.x = maxX
 		} else {
 			snake.head.x--
 		}
 	case Right:
-		if snake.head.x == maxWidth {
-			snake.head.x = 0
+		if snake.head.x == maxX {
+			snake.head.x = minX
 		} else {
 			snake.head.x++
 		}
 	}
 
-	snake.body.shift()
-	snake.body.push(snake.head)
+	// delete tail, move forward head.
+	snake.body = RemoveFront(snake.body)
+	snake.body = Append(snake.body, snake.head)
 }
 
-func (snake *Snake) getCoords() CoordList {
-	coords := []Coord{snake.head}
-	return append(coords, *snake.body...)
-}
+func (snake *Snake) CoordinateList() []Coordinate { return append(snake.body, snake.head) }

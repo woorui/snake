@@ -1,14 +1,24 @@
 package main
 
-import "flag"
+import (
+	"flag"
+	"os"
+)
+
+var (
+	Width  int
+	Height int
+	Speed  int
+)
+
+func init() {
+	flag.IntVar(&Width, "width", 25, "game stage width")
+	flag.IntVar(&Height, "height", 12, "game stage height")
+	flag.IntVar(&Speed, "speed", 120, "game speed, duration between two frames")
+}
 
 func main() {
-	width := flag.Int("width", defaultGameWidth, "Game stage width.")
-	height := flag.Int("height", defaultGameHeight, "Game stage height.")
-	debug := flag.Bool("debug", false, "debug mode.")
 	flag.Parse()
 
-	game := NewGame(GameOpts{Width: *width, Height: *height, Debug: *debug})
-
-	game.Run()
+	NewGame(os.Stdout, &GameOption{Width: Width, Height: Height, Speed: Speed}).Run()
 }
