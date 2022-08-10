@@ -28,26 +28,26 @@ func NewCoordinate(
 	ink byte,
 	forbid []Coordinate) (Coordinate, error) {
 
-	deep := 0
+	depth := 0
 
-	return NewCoordinateWithDeep(minX, maxX, minY, maxY, ink, forbid, &deep)
+	return NewCoordinateWithDeep(minX, maxX, minY, maxY, ink, forbid, &depth)
 }
 
-func NewCoordinateWithDeep(minX, maxX, minY, maxY int, ink byte, forbid []Coordinate, deep *int) (Coordinate, error) {
+func NewCoordinateWithDeep(minX, maxX, minY, maxY int, ink byte, forbid []Coordinate, depth *int) (Coordinate, error) {
 	var (
 		x = RandomInt(minX, maxX)
 		y = RandomInt(minY, maxY)
 	)
 
-	*deep++
+	*depth++
 
-	if *deep >= 1000 {
+	if *depth >= 1000 {
 		return Coordinate{}, ErrTooManyRandTimes
 	}
 
 	for _, v := range forbid {
 		if v.x == x && v.y == y {
-			return NewCoordinateWithDeep(minX, maxX, minY, maxY, ink, forbid, deep)
+			return NewCoordinateWithDeep(minX, maxX, minY, maxY, ink, forbid, depth)
 		}
 	}
 
