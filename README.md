@@ -2,30 +2,25 @@
 
 [![Build Status](https://cloud.drone.io/api/badges/woorui/snake/status.svg)](https://cloud.drone.io/woorui/snake)
 
-The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (but docker support)
-
-## Running in the project directory without building, just for testing
-
-```bash
-go run -race $(ls -1 *.go | grep -v _test.go)
-```
+The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (but docker supported).
 
 ## Install
 
 ```bash
-go get -u github.com/woorui/snake
+go install github.com/woorui/snake
 ```
 
-## Flag
+## Flags
 
 ```bash
-snake --help
-  -debug
-        debug mode.
+> snake -h
+Usage of snake:
   -height int
-        Game stage height. (default 12)
+        game stage height (default 12)
+  -speed int
+        game speed, duration between two frames (default 120)
   -width int
-        Game stage width. (default 25)
+        game stage width (default 25)
 ```
 
 ## Run

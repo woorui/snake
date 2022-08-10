@@ -20,5 +20,6 @@ func init() {
 func main() {
 	flag.Parse()
 
+	// go run -race $(ls *.go | grep -v _test.go)
 	NewGame(os.Stdout, &GameOption{Width: Width, Height: Height, Speed: Speed}).Run()
 }
