@@ -79,7 +79,9 @@ func (game *Game) PlayFrame() error {
 	return game.framer.RenderWithCoordinate(game.snake, game.food)
 }
 
-func (game *Game) score() int { return len(game.snake.body) + 1 }
+func (game *Game) score() int {
+	return len(game.snake.body) + 1
+}
 
 // Run run the game
 func (game *Game) Run() {
