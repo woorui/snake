@@ -7,7 +7,7 @@ GO_LDFLAGS ?= -X $(shell $(GO) list -m)/cmd.Version=$(CLI_VERSION)
 VER ?= $(shell git describe --tags --abbrev=0)
 TAGS ?=
 
-bina_json = '{"platforms": { "darwin-arm64": { "asset": "snake-${VER}-arm64-Darwin.tar.gz", "file": "snake" }, "darwin-amd64": { "asset": "snake-${VER}-x86_64-Darwin.tar.gz", "file": "snake" }, "linux-arm64": { "asset": "snake-${VER}-arm64-Linux.tar.gz", "file": "snake" }, "linux-amd64": { "asset": "snake-${VER}-x86_64-Linux.tar.gz", "file": "snake" }, "windows-amd64": { "asset": "snake-${VER}-x86_64-Windows.tar.gz", "file": "snake.exe" } } }'
+bina_json = '{"platforms": { "darwin-arm64": { "asset": "snake-${VER}-arm64-Darwin.tar.gz", "file": "snake" }, "darwin-amd64": { "asset": "snake-${VER}-x86_64-Darwin.tar.gz", "file": "snake" }, "linux-arm64": { "asset": "snake-${VER}-arm64-Linux.tar.gz", "file": "snake" }, "linux-amd64": { "asset": "snake-${VER}-x86_64-Linux.tar.gz", "file": "snake" } } }'
 
 .PHONY: fmt
 fmt:
