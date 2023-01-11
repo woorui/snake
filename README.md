@@ -10,6 +10,11 @@ The snake is controlled with `w`, `a`, `s` and `d`, It don't support windows (bu
 ## Install
 
 ```bash
+curl -fsSL "https://bina.egoist.dev/woorui/snake" | sh
+```
+or
+
+```bash
 go install github.com/woorui/snake
 ```
 
