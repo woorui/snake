@@ -2,13 +2,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 )
 
 var (
-	Width  int
-	Height int
-	Speed  int
+	Version string
+	Width   int
+	Height  int
+	Speed   int
 )
 
 func init() {
@@ -18,8 +20,13 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
+	args := os.Args
+	if len(args) == 2 && (args[1] == "--version" || args[1] == "-v" || args[1] == "version") {
+		fmt.Printf("snake version: %s\n", Version)
+		return
+	}
 
+	flag.Parse()
 	// go run -race $(ls *.go | grep -v _test.go)
 	NewGame(os.Stdout, &GameOption{Width: Width, Height: Height, Speed: Speed}).Run()
 }

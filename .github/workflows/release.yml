@@ -1,0 +1,61 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+jobs:
+  archive-release:
+    name: Build binary
+    runs-on: ubuntu-latest
+    env:
+      GOVER: 1.19
+    steps:
+      - name: Set up Go ${{ env.GOVER }}
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOVER }}
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Run go mod tidy
+        run: go mod tidy
+      - name: build & archive binaries
+        run: make archive-release
+      - name: upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: snake-artifact
+          path: ./bin/**/*
+  publish:
+    name: Publish binaries
+    needs: [archive-release]
+    env:
+      ARTIFACT_DIR: ./release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: snake-artifact
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: lists artifacts
+        run: ls -l ${{ env.ARTIFACT_DIR }}
+      - name: build version
+        run: make version
+      - name: Get version
+        id: tag
+        run: echo "name=version::$(cat ./VERSION)" >> $GITHUB_OUTPUT
+      - name: publish binaries to github
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: ${{ steps.tag.outputs.version }}
+          files: ${{ env.ARTIFACT_DIR }}/*
